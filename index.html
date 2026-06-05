@@ -1781,66 +1781,1810 @@ footer{background:#0f172a;border-top:1px solid rgba(255,255,255,0.07);padding:48
 <div class="fbot"><div>&#169; 2026 Delivery Complaint Prevention. Founded by Hardik Badhwar. All rights reserved.</div><div class="fbotlinks"><a href="#">Privacy Policy</a><a href="#">Terms &amp; Conditions</a><a href="#">Cookie Policy</a><a href="#">UK GDPR</a></div></div>
 </footer>
 </div>
+<style>
+/* ═══════════════════════════════════════════════
+   DCPE ADVANCED LIVE DEMO — Deep MVP Styles
+═══════════════════════════════════════════════ */
+.demo-shell{background:#07090f;min-height:calc(100vh - 64px);display:flex;flex-direction:column;}
+.demo-topbar{background:rgba(10,14,26,0.95);border-bottom:1px solid rgba(255,255,255,0.06);padding:0 16px;height:48px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;overflow-x:auto;}
+.demo-tabs{display:flex;align-items:stretch;height:100%;gap:2px;}
+.dtab{padding:0 14px;font-size:11px;font-weight:600;color:rgba(148,163,184,.6);cursor:pointer;border:none;background:transparent;height:100%;display:flex;align-items:center;gap:5px;border-bottom:2px solid transparent;transition:.15s;white-space:nowrap;font-family:inherit;}
+.dtab:hover{color:#cbd5e1;}
+.dtab.active{color:#e2e8f0;border-bottom-color:#1a6ef5;}
+.dtab-icon{font-size:12px;}
+.demo-status-row{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.ds-pill{display:flex;align-items:center;gap:5px;font-size:9px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;padding:3px 10px;border-radius:50px;}
+.ds-live{background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.25);color:#34d399;}
+.ds-warn{background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.25);color:#f87171;}
+.ds-info{background:rgba(26,110,245,0.12);border:1px solid rgba(26,110,245,0.25);color:#60a5fa;}
+
+.demo-body{flex:1;overflow:auto;padding:14px;}
+.demo-tab-panel{display:none;}
+.demo-tab-panel.active{display:block;}
+
+/* KPI Strip */
+.kpi-strip{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:14px;}
+@media(max-width:900px){.kpi-strip{grid-template-columns:repeat(3,1fr);}}
+@media(max-width:480px){.kpi-strip{grid-template-columns:repeat(2,1fr);}}
+.kpi-card{background:rgba(15,23,42,0.9);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:12px 10px;position:relative;overflow:hidden;}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--kc,linear-gradient(90deg,#1a6ef5,#7c3aed));}
+.kpi-val{font-size:clamp(18px,2.5vw,26px);font-weight:800;color:#e2e8f0;line-height:1;}
+.kpi-lbl{font-size:8.5px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-top:3px;}
+.kpi-trend{font-size:9px;font-weight:600;margin-top:3px;}
+.kpi-trend.up{color:#10b981;} .kpi-trend.dn{color:#ef4444;} .kpi-trend.nt{color:#64748b;}
+
+/* Grid layouts */
+.d-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+.d-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.d-grid-wide{display:grid;grid-template-columns:2fr 1fr;gap:12px;}
+.d-grid-wide2{display:grid;grid-template-columns:1fr 2fr;gap:12px;}
+@media(max-width:960px){.d-grid-3,.d-grid-2,.d-grid-wide,.d-grid-wide2{grid-template-columns:1fr;}}
+
+/* Panel */
+.dp{background:rgba(13,19,36,0.95);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:14px;margin-bottom:12px;}
+.dp-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:6px;}
+.dp-title{font-size:12px;font-weight:700;color:#e2e8f0;}
+.dp-sub{font-size:9.5px;color:#475569;margin-top:2px;}
+.dp-badge{font-size:8.5px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;padding:3px 9px;border-radius:50px;}
+.dp-badge.live{background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.25);color:#34d399;}
+.dp-badge.ai{background:rgba(26,110,245,0.12);border:1px solid rgba(26,110,245,0.25);color:#60a5fa;}
+.dp-badge.warn{background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.25);color:#f87171;}
+.dp-badge.pur{background:rgba(168,85,247,0.12);border:1px solid rgba(168,85,247,0.25);color:#c084fc;}
+
+/* Table */
+.rtable{width:100%;border-collapse:collapse;font-size:10.5px;}
+.rtable th{padding:7px 8px;text-align:left;font-size:8px;text-transform:uppercase;letter-spacing:1.2px;color:#475569;border-bottom:1px solid rgba(255,255,255,0.06);white-space:nowrap;}
+.rtable td{padding:9px 8px;border-bottom:1px solid rgba(255,255,255,0.03);color:#cbd5e1;vertical-align:middle;}
+.rtable tr:hover td{background:rgba(255,255,255,0.02);cursor:pointer;}
+.rtable tr.sel td{background:rgba(26,110,245,0.08);}
+
+/* Risk badges */
+.rb{display:inline-block;padding:2px 8px;border-radius:50px;font-size:7.5px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;}
+.rb-cr{background:rgba(239,68,68,0.2);color:#ff6b6b;border:1px solid rgba(239,68,68,0.4);animation:rbp 1.2s infinite;}
+.rb-hi{background:rgba(239,68,68,0.12);color:#ef4444;border:1px solid rgba(239,68,68,0.25);}
+.rb-md{background:rgba(245,158,11,0.12);color:#f59e0b;border:1px solid rgba(245,158,11,0.25);}
+.rb-lo{background:rgba(16,185,129,0.12);color:#10b981;border:1px solid rgba(16,185,129,0.25);}
+.rb-ok{background:rgba(16,185,129,0.08);color:#34d399;border:1px solid rgba(16,185,129,0.18);}
+@keyframes rbp{0%,100%{opacity:1}50%{opacity:.55}}
+
+.sbar-mini{height:4px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden;width:50px;display:inline-block;vertical-align:middle;margin-left:4px;}
+.sbar-fill{height:100%;border-radius:2px;}
+
+/* AI Output Box */
+.ai-box{background:rgba(26,110,245,0.05);border:1px solid rgba(26,110,245,0.16);border-radius:10px;padding:13px;font-size:11px;color:#cbd5e1;line-height:1.75;}
+.ai-box.purple{background:rgba(124,58,237,0.05);border-color:rgba(124,58,237,0.18);}
+.ai-box.green{background:rgba(16,185,129,0.05);border-color:rgba(16,185,129,0.18);}
+.ai-box.hidden{display:none;}
+.ai-hdr{font-size:9px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:#60a5fa;margin-bottom:8px;display:flex;align-items:center;gap:5px;}
+.ai-hdr.purple{color:#c084fc;}
+.ai-hdr.green{color:#34d399;}
+.ai-hdr::before{content:'◈';font-size:10px;}
+.ai-thinking{display:flex;align-items:center;gap:8px;color:#475569;font-size:10.5px;}
+.dots span{width:5px;height:5px;border-radius:50%;background:#475569;display:inline-block;animation:da 1.4s infinite;margin:0 1.5px;}
+.dots span:nth-child(2){animation-delay:.2s;} .dots span:nth-child(3){animation-delay:.4s;}
+@keyframes da{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
+
+/* Form controls */
+.fm-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;}
+@media(max-width:500px){.fm-row{grid-template-columns:1fr;}}
+.fm-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px;}
+@media(max-width:640px){.fm-row-3{grid-template-columns:1fr 1fr;}}
+.fm-lbl{font-size:8.5px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;display:block;}
+.fm-sel,.fm-inp{width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:7px;padding:7px 10px;color:#e2e8f0;font-size:11px;font-family:inherit;outline:none;transition:.15s;}
+.fm-sel:focus,.fm-inp:focus{border-color:rgba(26,110,245,0.4);background:rgba(26,110,245,0.04);}
+.fm-sel option{background:#1e293b;}
+.fm-textarea{width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:7px;padding:9px 11px;color:#e2e8f0;font-size:11px;font-family:inherit;outline:none;resize:vertical;min-height:70px;transition:.15s;}
+.fm-textarea:focus{border-color:rgba(26,110,245,0.4);}
+
+/* Buttons */
+.db-primary{background:linear-gradient(135deg,#1a6ef5,#7c3aed);color:#fff;border:none;padding:9px 18px;border-radius:8px;font-size:11.5px;font-weight:700;cursor:pointer;font-family:inherit;transition:.15s;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;}
+.db-primary:hover{opacity:.88;} .db-primary:disabled{opacity:.4;cursor:default;}
+.db-secondary{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.10);color:#cbd5e1;padding:7px 14px;border-radius:7px;font-size:10.5px;font-weight:600;cursor:pointer;font-family:inherit;transition:.15s;}
+.db-secondary:hover{background:rgba(255,255,255,0.09);}
+.db-danger{background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;border:none;padding:7px 14px;border-radius:7px;font-size:10.5px;font-weight:700;cursor:pointer;font-family:inherit;transition:.15s;}
+.db-warn{background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border:none;padding:7px 14px;border-radius:7px;font-size:10.5px;font-weight:700;cursor:pointer;font-family:inherit;transition:.15s;}
+.db-green{background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;padding:7px 14px;border-radius:7px;font-size:10.5px;font-weight:700;cursor:pointer;font-family:inherit;transition:.15s;}
+.db-full{width:100%;justify-content:center;}
+
+/* Gauge */
+.gauge-wrap{text-align:center;padding:8px 0;}
+.gauge-ring{position:relative;display:inline-block;width:110px;height:110px;}
+.gauge-svg{transform:rotate(-90deg);}
+.gauge-bg{fill:none;stroke:rgba(255,255,255,0.06);stroke-width:9;}
+.gauge-fill{fill:none;stroke-width:9;stroke-linecap:round;transition:stroke-dashoffset .9s ease,stroke .4s ease;}
+.gauge-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.gauge-pct{font-size:26px;font-weight:800;color:#e2e8f0;line-height:1;}
+.gauge-lbl{font-size:8px;color:#64748b;text-transform:uppercase;margin-top:2px;}
+.gauge-risk{font-size:9.5px;font-weight:700;margin-top:3px;}
+
+/* Chat */
+.chat-area{display:flex;flex-direction:column;height:380px;}
+@media(max-width:600px){.chat-area{height:300px;}}
+.chat-msgs{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding:2px 2px 8px;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,0.08) transparent;}
+.chat-msgs::-webkit-scrollbar{width:3px;}
+.chat-msgs::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08);}
+.msg{max-width:88%;font-size:10.5px;line-height:1.7;padding:9px 12px;border-radius:10px;}
+.msg.user{align-self:flex-end;background:linear-gradient(135deg,rgba(26,110,245,.3),rgba(124,58,237,.2));border:1px solid rgba(26,110,245,.3);color:#e2e8f0;border-bottom-right-radius:3px;}
+.msg.bot{align-self:flex-start;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);color:#cbd5e1;border-bottom-left-radius:3px;}
+.msg-from{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#60a5fa;margin-bottom:3px;}
+.chat-row{display:flex;gap:7px;margin-top:8px;align-items:center;}
+.chat-input{flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);border-radius:8px;padding:8px 12px;color:#e2e8f0;font-size:11px;font-family:inherit;outline:none;}
+.chat-input:focus{border-color:rgba(26,110,245,.4);}
+.chat-input::placeholder{color:#334155;}
+.chat-send{width:36px;height:36px;background:linear-gradient(135deg,#1a6ef5,#7c3aed);border:none;border-radius:8px;color:#fff;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.chat-send:disabled{opacity:.35;cursor:default;}
+.quick-chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px;}
+.chip{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);color:#94a3b8;font-size:9px;padding:4px 9px;border-radius:50px;cursor:pointer;font-family:inherit;transition:.15s;}
+.chip:hover{background:rgba(26,110,245,0.12);border-color:rgba(26,110,245,.3);color:#60a5fa;}
+
+/* Alert items */
+.alert-item{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;padding:11px;border-radius:9px;margin-bottom:7px;transition:.2s;}
+.alert-item.cr{background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.2);}
+.alert-item.hi{background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.18);}
+.alert-item.md{background:rgba(26,110,245,0.06);border:1px solid rgba(26,110,245,0.16);}
+.alert-item.ok{background:rgba(16,185,129,0.05);border:1px solid rgba(16,185,129,0.14);opacity:.6;}
+.alert-title{font-size:10.5px;font-weight:700;}
+.alert-body{font-size:9.5px;color:#64748b;margin-top:2px;line-height:1.5;}
+.alert-resolve{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.11);color:#e2e8f0;padding:4px 11px;border-radius:5px;font-size:9px;font-weight:600;cursor:pointer;font-family:inherit;transition:.15s;flex-shrink:0;white-space:nowrap;}
+.alert-resolve:hover{background:rgba(26,110,245,.2);}
+.alert-resolve.done{background:rgba(16,185,129,.12);border-color:rgba(16,185,129,.25);color:#10b981;cursor:default;}
+
+/* Savings display */
+.savings-big{font-size:clamp(28px,4vw,44px);font-weight:800;background:linear-gradient(135deg,#10b981,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-align:center;line-height:1;}
+.savings-sub{text-align:center;font-size:9px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-top:3px;}
+
+/* Ticker */
+.ticker-row{font-size:9.5px;color:#64748b;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.03);display:flex;gap:8px;align-items:flex-start;animation:tkin .3s ease;}
+@keyframes tkin{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+.tick-time{color:#334155;flex-shrink:0;font-size:8.5px;}
+.tick-cr{color:#f87171;} .tick-hi{color:#fbbf24;} .tick-ok{color:#34d399;} .tick-md{color:#60a5fa;}
+
+/* Heatmap */
+.heatmap-grid{display:grid;grid-template-columns:64px 1fr;gap:6px;align-items:center;margin-top:6px;}
+.hm-band-label{font-size:8px;color:#475569;text-align:right;padding-right:6px;}
+.hm-row{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
+.hm-cell{height:16px;border-radius:3px;cursor:pointer;transition:.15s;}
+.hm-cell:hover{transform:scale(1.1);}
+.hm-0{background:rgba(255,255,255,0.03);}
+.hm-1{background:rgba(16,185,129,0.25);}
+.hm-2{background:rgba(245,158,11,0.35);}
+.hm-3{background:rgba(239,68,68,0.42);}
+.hm-4{background:rgba(239,68,68,0.68);}
+
+/* Fingerprint visual */
+.fp-radar{display:flex;flex-direction:column;gap:5px;}
+.fp-factor{display:grid;grid-template-columns:110px 1fr 40px;gap:8px;align-items:center;font-size:10px;}
+.fp-factor-lbl{color:#94a3b8;font-size:9.5px;}
+.fp-bar{height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;}
+.fp-fill{height:100%;border-radius:3px;transition:width .8s cubic-bezier(.4,0,.2,1);}
+.fp-pct{color:#e2e8f0;font-weight:700;font-size:10px;text-align:right;}
+
+/* Timeline vertical */
+.ops-timeline{display:flex;flex-direction:column;gap:0;}
+.ops-step{display:flex;gap:12px;position:relative;padding-bottom:14px;}
+.ops-step:last-child{padding-bottom:0;}
+.ops-dot{width:28px;height:28px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;position:relative;z-index:1;}
+.ops-dot::after{content:'';position:absolute;top:28px;left:50%;transform:translateX(-50%);width:2px;height:calc(100% + 14px - 28px);background:rgba(255,255,255,0.06);}
+.ops-step:last-child .ops-dot::after{display:none;}
+.ops-content{flex:1;padding-top:2px;}
+.ops-title{font-size:11px;font-weight:700;color:#e2e8f0;margin-bottom:3px;}
+.ops-desc{font-size:10px;color:#64748b;line-height:1.6;}
+.ops-tag{display:inline-block;font-size:8px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;padding:2px 7px;border-radius:50px;margin-top:4px;}
+
+/* Risk breakdown */
+.rbd-item{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border-radius:7px;margin-bottom:5px;border:1px solid rgba(255,255,255,0.05);}
+.rbd-label{font-size:10.5px;color:#94a3b8;}
+.rbd-val{font-weight:700;font-size:11px;}
+
+/* Score pill for order table */
+.score-pill{display:inline-flex;align-items:center;gap:5px;font-weight:700;font-size:11px;}
+
+/* Dispute tracker table */
+.dispute-row{display:grid;grid-template-columns:80px 1fr 80px 80px;gap:8px;padding:9px;border-bottom:1px solid rgba(255,255,255,0.04);font-size:10.5px;align-items:center;}
+.dispute-row.head{font-size:8px;text-transform:uppercase;letter-spacing:1px;color:#475569;border-bottom:1px solid rgba(255,255,255,0.07);}
+
+/* OLM Memory Cards */
+.olm-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:9px;padding:11px;margin-bottom:7px;}
+.olm-card-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;}
+.olm-pattern{font-size:10.5px;font-weight:600;color:#e2e8f0;}
+.olm-accuracy{font-size:10px;font-weight:700;}
+.olm-desc{font-size:9.5px;color:#64748b;line-height:1.5;}
+
+/* CQNO Community panel */
+.cqn-stat{text-align:center;padding:14px 8px;background:rgba(255,255,255,0.03);border-radius:9px;}
+.cqn-val{font-size:24px;font-weight:800;color:#e2e8f0;}
+.cqn-lbl{font-size:8.5px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-top:2px;}
+
+/* Integration status */
+.int-item{display:flex;align-items:center;justify-content:space-between;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);margin-bottom:7px;}
+.int-left{display:flex;align-items:center;gap:10px;}
+.int-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;}
+.int-name{font-size:11px;font-weight:600;color:#e2e8f0;}
+.int-sub{font-size:9px;color:#64748b;}
+.int-status{display:flex;align-items:center;gap:5px;font-size:9px;font-weight:700;}
+.int-dot{width:7px;height:7px;border-radius:50%;}
+.int-ok .int-dot{background:#10b981;} .int-ok{color:#10b981;}
+.int-pend .int-dot{background:#f59e0b;} .int-pend{color:#f59e0b;}
+.int-off .int-dot{background:#475569;} .int-off{color:#475569;}
+
+/* Command center grid */
+.cmd-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;}
+@media(max-width:900px){.cmd-grid{grid-template-columns:repeat(2,1fr);}}
+.cmd-kpi{background:rgba(13,19,36,0.95);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:14px;text-align:center;}
+.cmd-val{font-size:clamp(22px,3vw,34px);font-weight:800;}
+.cmd-label{font-size:9px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-top:3px;}
+.cmd-delta{font-size:9.5px;font-weight:700;margin-top:4px;}
+
+/* Site map */
+.staff-row{display:flex;align-items:center;justify-content:space-between;padding:9px;border-radius:7px;margin-bottom:5px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);}
+.staff-name{font-size:11px;font-weight:600;color:#e2e8f0;}
+.staff-role{font-size:9px;color:#64748b;}
+.staff-stat{display:flex;align-items:center;gap:5px;font-size:9.5px;font-weight:600;}
+
+/* Chart wrapper heights */
+.chart-wrap-lg{height:150px;position:relative;}
+.chart-wrap-md{height:130px;position:relative;}
+@media(max-width:900px){
+  .chart-wrap-lg{height:120px;}
+  .chart-wrap-md{height:110px;}
+}
+@media(max-width:480px){
+  .chart-wrap-lg{height:100px;}
+  .chart-wrap-md{height:95px;}
+}
+
+/* Scrollbars in demo */
+.demo-body *{scrollbar-width:thin;scrollbar-color:rgba(255,255,255,0.06) transparent;}
+
+/* ═══════════════════════════════════════
+   MOBILE RESPONSIVE — 900px & below
+   All command center widgets
+═══════════════════════════════════════ */
+
+/* ── Demo top tab bar ── */
+@media(max-width:900px){
+  .demo-topbar{height:auto;min-height:44px;padding:0 10px;flex-direction:column;align-items:flex-start;gap:0;}
+  .demo-tabs{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;gap:0;flex-wrap:nowrap;}
+  .demo-tabs::-webkit-scrollbar{display:none;}
+  .dtab{font-size:10px;padding:0 10px;height:40px;flex-shrink:0;}
+  .dtab-icon{display:none;}
+  .demo-status-row{width:100%;padding:5px 0 6px;gap:6px;flex-wrap:wrap;}
+  .ds-pill{font-size:8px;padding:2px 7px;}
+}
+
+/* ── KPI Strip ── */
+@media(max-width:900px){
+  .kpi-strip{grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:12px;}
+  .kpi-val{font-size:20px;}
+  .kpi-lbl{font-size:7.5px;}
+  .kpi-trend{font-size:8.5px;}
+  .kpi-card{padding:10px 8px;}
+}
+@media(max-width:480px){
+  .kpi-strip{grid-template-columns:repeat(2,1fr);gap:6px;}
+  .kpi-val{font-size:18px;}
+}
+@media(max-width:320px){
+  .kpi-strip{grid-template-columns:1fr 1fr;}
+}
+
+/* ── Grid layouts — all collapse to single column ── */
+@media(max-width:900px){
+  .d-grid-wide{grid-template-columns:1fr;}
+  .d-grid-wide2{grid-template-columns:1fr;}
+  .d-grid-2{grid-template-columns:1fr;}
+  .d-grid-3{grid-template-columns:1fr;}
+}
+/* 2-col allowed on 600+ for simple 2-col grids */
+@media(min-width:600px) and (max-width:900px){
+  .d-grid-2{grid-template-columns:1fr 1fr;}
+}
+
+/* ── Charts — full width, shorter on mobile ── */
+@media(max-width:900px){
+  /* Live Risk Feed */
+  #demoChart1{max-height:130px;}
+  /* Prevention Rate & Savings chart side by side on ≥500px, stacked below */
+  .d-grid-2 .dp canvas{max-height:120px;}
+}
+@media(max-width:480px){
+  #demoChart1{max-height:110px;}
+  .d-grid-2 .dp canvas{max-height:100px;}
+}
+
+/* ── Live Event Stream ticker ── */
+@media(max-width:900px){
+  .ticker-row{font-size:9px;gap:6px;}
+  .tick-time{display:none;}
+}
+
+/* ── P&L Protection / Savings ── */
+@media(max-width:900px){
+  .savings-big{font-size:36px;}
+  .savings-sub{font-size:8.5px;}
+}
+
+/* ── Alert Queue ── */
+@media(max-width:900px){
+  .alert-item{flex-wrap:wrap;gap:6px;}
+  .alert-title{font-size:10px;}
+  .alert-body{font-size:9px;}
+  .alert-resolve{font-size:9px;padding:4px 10px;}
+}
+@media(max-width:480px){
+  .alert-item{padding:9px;}
+  .alert-resolve{width:100%;text-align:center;margin-top:4px;}
+}
+
+/* ── Risk Heatmap ── */
+@media(max-width:900px){
+  .heatmap-grid{grid-template-columns:50px 1fr;gap:4px;}
+  .hm-band-label{font-size:7.5px;}
+  .hm-cell{height:14px;border-radius:2px;}
+}
+@media(max-width:480px){
+  .heatmap-grid{grid-template-columns:44px 1fr;gap:3px;}
+  .hm-band-label{font-size:7px;}
+  .hm-cell{height:12px;}
+  /* Day labels above heatmap */
+  #week-heatmap ~ div span{font-size:7px;}
+}
+
+/* ── Panels general ── */
+@media(max-width:900px){
+  .dp{padding:12px;margin-bottom:10px;}
+  .dp-title{font-size:11.5px;}
+  .dp-sub{font-size:9px;}
+  .dp-badge{font-size:8px;padding:2px 7px;}
+  .demo-body{padding:10px;}
+}
+@media(max-width:480px){
+  .dp{padding:10px;}
+  .dp-title{font-size:11px;}
+  .demo-body{padding:8px;}
+}
+
+/* ── Command center KPI row ── */
+@media(max-width:900px){
+  .cmd-grid{grid-template-columns:repeat(2,1fr);gap:8px;}
+  .cmd-val{font-size:26px;}
+}
+@media(max-width:480px){
+  .cmd-grid{grid-template-columns:1fr 1fr;}
+}
+
+/* ── Order table horizontal scroll ── */
+@media(max-width:900px){
+  .rtable{font-size:10px;}
+  .rtable th{font-size:7.5px;padding:5px 6px;}
+  .rtable td{padding:8px 6px;}
+}
+
+/* ── Form rows ── */
+@media(max-width:600px){
+  .fm-row{grid-template-columns:1fr;}
+  .fm-row-3{grid-template-columns:1fr 1fr;}
+}
+@media(max-width:400px){
+  .fm-row-3{grid-template-columns:1fr;}
+}
+
+/* ── Chat ── */
+@media(max-width:900px){
+  .chat-area{height:280px;}
+  .msg{font-size:10px;padding:7px 10px;}
+  .chat-input{font-size:10.5px;padding:7px 10px;}
+  .quick-chips{gap:4px;}
+  .chip{font-size:8.5px;padding:3px 8px;}
+}
+
+/* ── Alert badge on topbar ── */
+@media(max-width:480px){
+  #alert-badge-top{display:none;}
+}
+
+/* ── Heatmap day labels ── */
+@media(max-width:900px){
+  .hm-day-labels{padding-left:54px !important;font-size:7.5px !important;}
+  .hm-day-labels span{font-size:7.5px;}
+}
+
+/* ── Savings 3-col grid inside P&L ── */
+@media(max-width:360px){
+  .savings-grid-3{grid-template-columns:1fr 1fr !important;}
+}
+
+/* ── OLM patterns ── */
+@media(max-width:900px){
+  .olm-card{padding:9px;}
+  .olm-pattern{font-size:9.5px;}
+  .olm-desc{font-size:9px;}
+}
+
+/* ── Integration items ── */
+@media(max-width:600px){
+  .int-item{flex-direction:column;gap:6px;}
+  .int-status{justify-content:flex-end;}
+}
+
+/* ── Dispute tracker ── */
+@media(max-width:600px){
+  .dispute-row{grid-template-columns:70px 1fr 60px;gap:5px;font-size:9.5px;}
+  .dispute-row > div:last-child{display:none;}
+}
+
+/* ── Gauge ring ── */
+@media(max-width:480px){
+  .gauge-ring{width:95px;height:95px;}
+  .gauge-svg{width:95px;height:95px;}
+  .gauge-pct{font-size:22px;}
+}
+
+/* ── CQN stats grid ── */
+@media(max-width:600px){
+  .cqn-stat{padding:10px 6px;}
+  .cqn-val{font-size:20px;}
+}
+
+/* ── FP radar factors ── */
+@media(max-width:600px){
+  .fp-factor{grid-template-columns:90px 1fr 35px;}
+  .fp-factor-lbl{font-size:9px;}
+}
+
+/* ── Risk breakdown items ── */
+@media(max-width:480px){
+  .rbd-item{padding:6px 8px;}
+  .rbd-label{font-size:9.5px;}
+  .rbd-val{font-size:10px;}
+}
+
+/* Ensure canvas elements never overflow */
+canvas{max-width:100% !important;}
+
+/* Touch-friendly buttons on mobile */
+@media(max-width:900px){
+  .db-primary,.db-secondary,.db-danger,.db-warn,.db-green{
+    min-height:42px;font-size:11px;
+  }
+  .alert-resolve{min-height:36px;}
+}
+
+</style>
+
 <div class="page" id="page-demo">
-<div class="dgrid">
-  <div class="dm">
-    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:9px;padding-top:2px;">
-      <div><h1 style="font-size:21px;font-weight:800;">Live Platform Demo</h1><p style="color:var(--gr);font-size:11.5px;margin-top:2px;"><span class="ld"></span> Real-time simulation &mdash; all figures based on live demo data</p></div>
-      <div style="display:flex;gap:9px;">
-        <div class="kc" style="padding:9px 14px;"><div style="font-size:17px;font-weight:800;color:var(--gn);">247</div><div style="font-size:8.5px;color:var(--gr);text-transform:uppercase;letter-spacing:1px;">Active Orders</div></div>
-        <div class="kc" style="padding:9px 14px;"><div style="font-size:17px;font-weight:800;color:var(--rd);">18</div><div style="font-size:8.5px;color:var(--gr);text-transform:uppercase;letter-spacing:1px;">Risk Alerts</div></div>
-        <div class="kc" style="padding:9px 14px;"><div style="font-size:17px;font-weight:800;color:var(--el);">94.3%</div><div style="font-size:8.5px;color:var(--gr);text-transform:uppercase;letter-spacing:1px;">Prevention Rate</div></div>
-      </div>
+<div class="demo-shell">
+
+<!-- ── TOP TAB BAR ── -->
+<div class="demo-topbar">
+  <div class="demo-tabs">
+    <button class="dtab active" onclick="switchTab('command-center')"><span class="dtab-icon">⌘</span>Command Center</button>
+    <button class="dtab" onclick="switchTab('order-monitor')"><span class="dtab-icon">📋</span>Order Monitor</button>
+    <button class="dtab" onclick="switchTab('risk-simulator')"><span class="dtab-icon">⚡</span>Risk Simulator</button>
+    <button class="dtab" onclick="switchTab('fingerprint-engine')"><span class="dtab-icon">🧬</span>Fingerprint Engine</button>
+    <button class="dtab" onclick="switchTab('forensics-lab')"><span class="dtab-icon">🔬</span>Forensics Lab</button>
+    <button class="dtab" onclick="switchTab('dispute-center')"><span class="dtab-icon">⚖️</span>Dispute Center</button>
+    <button class="dtab" onclick="switchTab('olm-memory')"><span class="dtab-icon">🧠</span>OLM Memory</button>
+    <button class="dtab" onclick="switchTab('ai-advisor')"><span class="dtab-icon">🤖</span>AI Advisor</button>
+    <button class="dtab" onclick="switchTab('integrations')"><span class="dtab-icon">🔌</span>Integrations</button>
+  </div>
+  <div class="demo-status-row">
+    <div class="ds-pill ds-live"><span class="ld"></span> LIVE AI</div>
+    <div class="ds-pill ds-warn" id="alert-badge-top">3 ALERTS</div>
+    <div class="ds-pill ds-info">Demo Mode</div>
+  </div>
+</div>
+
+<div class="demo-body">
+
+<!-- ══════════════════════════════════════
+     TAB 1: COMMAND CENTER
+══════════════════════════════════════ -->
+<div class="demo-tab-panel active" id="tab-command-center">
+
+  <!-- KPI Strip -->
+  <div class="kpi-strip">
+    <div class="kpi-card" style="--kc:linear-gradient(90deg,#10b981,#06b6d4)">
+      <div class="kpi-val" id="kpi-total-orders">247</div>
+      <div class="kpi-lbl">Active Orders</div>
+      <div class="kpi-trend up" id="kpi-orders-trend">↑ +12 vs 1hr ago</div>
     </div>
-    <div class="row-2">
-      <div class="dash"><div class="dh"><div class="dt">Risk Score Live Feed (updates every 2s)</div><div class="db"><span class="ld"></span> LIVE</div></div><div class="cw" style="height:162px;"><canvas id="demoChart1"></canvas></div></div>
-      <div class="dash"><div class="dh"><div class="dt">Complaint Prevention Rate</div></div><div class="cw" style="height:162px;"><canvas id="demoChart2"></canvas></div></div>
+    <div class="kpi-card" style="--kc:linear-gradient(90deg,#ef4444,#f97316)">
+      <div class="kpi-val" style="color:#ef4444;" id="kpi-alerts">18</div>
+      <div class="kpi-lbl">Risk Alerts</div>
+      <div class="kpi-trend dn">↓ 3 resolved</div>
     </div>
-    <div class="dash">
-      <div class="dh"><div class="dt">Active Order Risk Monitor</div><div class="db"><span class="ld"></span> LIVE</div></div>
-      <div style="overflow-x:auto;">
-        <table style="width:100%;border-collapse:collapse;font-size:10.5px;margin-top:5px;">
-          <thead><tr style="border-bottom:1px solid var(--br);"><th style="text-align:left;padding:6px 9px;color:var(--gr);font-size:8.5px;text-transform:uppercase;letter-spacing:1px;">Order</th><th style="text-align:left;padding:6px 9px;color:var(--gr);font-size:8.5px;text-transform:uppercase;letter-spacing:1px;">Items</th><th style="text-align:left;padding:6px 9px;color:var(--gr);font-size:8.5px;text-transform:uppercase;letter-spacing:1px;">Distance</th><th style="text-align:left;padding:6px 9px;color:var(--gr);font-size:8.5px;text-transform:uppercase;letter-spacing:1px;">Risk Score</th><th style="text-align:left;padding:6px 9px;color:var(--gr);font-size:8.5px;text-transform:uppercase;letter-spacing:1px;">Status</th><th style="text-align:left;padding:6px 9px;color:var(--gr);font-size:8.5px;text-transform:uppercase;letter-spacing:1px;">Stage</th></tr></thead>
-          <tbody>
-            <tr style="border-bottom:1px solid rgba(255,255,255,0.03);"><td style="padding:8px 9px;font-weight:600;">#4821</td><td style="padding:8px 9px;color:var(--gr);">3x Pizza + 2 Drinks</td><td style="padding:8px 9px;color:var(--gr);">4.2 km</td><td style="padding:8px 9px;"><span style="color:var(--rd);font-weight:700;">87%</span></td><td style="padding:8px 9px;"><span class="rh rhi">HIGH RISK</span></td><td style="padding:8px 9px;color:var(--or);">In Kitchen</td></tr>
-            <tr style="border-bottom:1px solid rgba(255,255,255,0.03);"><td style="padding:8px 9px;font-weight:600;">#4822</td><td style="padding:8px 9px;color:var(--gr);">Curry Set + Naan</td><td style="padding:8px 9px;color:var(--gr);">2.1 km</td><td style="padding:8px 9px;"><span style="color:var(--or);font-weight:700;">54%</span></td><td style="padding:8px 9px;"><span class="rh rmi">MONITOR</span></td><td style="padding:8px 9px;color:var(--bl2);">Packing</td></tr>
-            <tr style="border-bottom:1px solid rgba(255,255,255,0.03);"><td style="padding:8px 9px;font-weight:600;">#4823</td><td style="padding:8px 9px;color:var(--gr);">Burger + Fries</td><td style="padding:8px 9px;color:var(--gr);">1.3 km</td><td style="padding:8px 9px;"><span style="color:var(--gn);font-weight:700;">12%</span></td><td style="padding:8px 9px;"><span class="rh rli">CLEAR</span></td><td style="padding:8px 9px;color:var(--gn);">Dispatched</td></tr>
-            <tr style="border-bottom:1px solid rgba(255,255,255,0.03);"><td style="padding:8px 9px;font-weight:600;">#4824</td><td style="padding:8px 9px;color:var(--gr);">6x Sushi Rolls</td><td style="padding:8px 9px;color:var(--gr);">5.8 km</td><td style="padding:8px 9px;"><span style="color:var(--rd);font-weight:700;">91%</span></td><td style="padding:8px 9px;"><span class="rh rhi">URGENT</span></td><td style="padding:8px 9px;color:var(--or);">Preparing</td></tr>
-            <tr><td style="padding:8px 9px;font-weight:600;">#4825</td><td style="padding:8px 9px;color:var(--gr);">Pasta Dinner</td><td style="padding:8px 9px;color:var(--gr);">1.8 km</td><td style="padding:8px 9px;"><span style="color:var(--gn);font-weight:700;">18%</span></td><td style="padding:8px 9px;"><span class="rh rli">CLEAR</span></td><td style="padding:8px 9px;color:var(--gn);">Packing</td></tr>
-          </tbody>
-        </table>
-      </div>
+    <div class="kpi-card" style="--kc:linear-gradient(90deg,#1a6ef5,#7c3aed)">
+      <div class="kpi-val" style="color:#60a5fa;" id="kpi-prev-rate">94.3%</div>
+      <div class="kpi-lbl">Prevention Rate</div>
+      <div class="kpi-trend up">↑ +2.1% this week</div>
+    </div>
+    <div class="kpi-card" style="--kc:linear-gradient(90deg,#10b981,#1a6ef5)">
+      <div class="kpi-val" style="color:#10b981;" id="kpi-saved-today">£1,240</div>
+      <div class="kpi-lbl">Saved Today</div>
+      <div class="kpi-trend up">↑ £182 last hour</div>
+    </div>
+    <div class="kpi-card" style="--kc:linear-gradient(90deg,#a855f7,#ec4899)">
+      <div class="kpi-val" style="color:#a855f7;">23/23</div>
+      <div class="kpi-lbl">Disputes Won</div>
+      <div class="kpi-trend nt">100% win rate</div>
+    </div>
+    <div class="kpi-card" style="--kc:linear-gradient(90deg,#f59e0b,#ef4444)">
+      <div class="kpi-val" style="color:#f59e0b;">4.8s</div>
+      <div class="kpi-lbl">Avg Alert Response</div>
+      <div class="kpi-trend up">↑ Target: &lt;10s</div>
     </div>
   </div>
-  <div class="ds">
-    <div class="dash">
-      <div class="dh"><div class="dt">Active Alerts</div><div class="db" style="background:rgba(239,68,68,0.15);border-color:rgba(239,68,68,0.3);color:var(--rd);">3 ACTIVE</div></div>
-      <div class="ai aih" style="margin-top:5px;"><div style="font-size:10.5px;font-weight:700;color:var(--rd);">CRITICAL &mdash; #4824</div><div style="font-size:10px;color:var(--gr);margin-top:2px;">Temp loss risk 91%<br>Use double insulation now</div></div>
-      <div class="ai aih"><div style="font-size:10.5px;font-weight:700;color:var(--rd);">HIGH &mdash; #4821</div><div style="font-size:10px;color:var(--gr);margin-top:2px;">Peak hour + long route<br>Verify all items before sealing</div></div>
-      <div class="ai aim"><div style="font-size:10.5px;font-weight:700;color:var(--or);">MEDIUM &mdash; #4822</div><div style="font-size:10px;color:var(--gr);margin-top:2px;">Liquid item in order<br>Switch to spill-proof bag</div></div>
-    </div>
-    <div class="dash">
-      <div class="dh"><div class="dt">Today's Savings</div></div>
-      <div style="text-align:center;padding:10px 0;">
-        <div style="font-family:Arial,Helvetica,sans-serif;font-size:32px;font-weight:800;color:var(--gn);">&pound;1,240</div>
-        <div style="font-size:10px;color:var(--gr);margin-top:2px;">Refunds prevented today</div>
-        <div class="row-2">
-          <div style="text-align:center;padding:7px 3px;background:rgba(255,255,255,0.03);border-radius:6px;"><div style="font-weight:800;color:var(--el);font-size:13px;">23</div><div style="font-size:8.5px;color:var(--gr);">Actions</div></div>
-          <div style="text-align:center;padding:7px 3px;background:rgba(255,255,255,0.03);border-radius:6px;"><div style="font-weight:800;color:var(--pu2);font-size:13px;">5</div><div style="font-size:8.5px;color:var(--gr);">Disputes</div></div>
-          <div style="text-align:center;padding:7px 3px;background:rgba(255,255,255,0.03);border-radius:6px;"><div style="font-weight:800;color:var(--gn);font-size:13px;">100%</div><div style="font-size:8.5px;color:var(--gr);">Won</div></div>
+
+  <div class="d-grid-wide">
+    <!-- Charts panel -->
+    <div>
+      <div class="dp">
+        <div class="dp-h"><div><div class="dp-title">Live Risk Score Feed</div><div class="dp-sub">Real-time risk scoring across all active orders — updates every 2 seconds</div></div><div class="dp-badge live"><span class="ld"></span> LIVE</div></div>
+        <div class="chart-wrap-lg" style="height:150px;position:relative;"><canvas id="demoChart1"></canvas></div>
+      </div>
+      <div class="d-grid-2">
+        <div class="dp">
+          <div class="dp-h"><div class="dp-title">Complaint Prevention Rate</div><div class="dp-badge ai">AI</div></div>
+          <div class="chart-wrap-md" style="height:130px;position:relative;"><canvas id="demoChart2"></canvas></div>
+        </div>
+        <div class="dp">
+          <div class="dp-h"><div class="dp-title">Today's Savings vs Cost</div></div>
+          <div class="chart-wrap-md" style="height:130px;position:relative;"><canvas id="roiMiniChart"></canvas></div>
         </div>
       </div>
+      <!-- Live Event Ticker -->
+      <div class="dp" style="padding:10px 13px;">
+        <div class="dp-h" style="margin-bottom:6px;"><div class="dp-title">Live Event Stream</div><div class="dp-badge live"><span class="ld"></span> LIVE</div></div>
+        <div id="live-ticker" style="display:flex;flex-direction:column;gap:1px;"></div>
+      </div>
     </div>
-    <div class="dash">
-      <div class="dh"><div class="dt">AI Recommendations</div></div>
-      <div style="display:flex;flex-direction:column;gap:6px;margin-top:3px;">
-        <div style="padding:8px;background:rgba(26,110,245,0.08);border-radius:7px;font-size:10.5px;border-left:2px solid var(--bl);"><strong style="color:var(--bl2);">Packaging:</strong> Friday peak in 45 min. Pre-stage extra thermal bags now.</div>
-        <div style="padding:8px;background:rgba(124,58,237,0.08);border-radius:7px;font-size:10.5px;border-left:2px solid var(--pu2);"><strong style="color:var(--pu2);">Staffing:</strong> Volume up 24% vs last Friday. Add extra packer at 6pm.</div>
-        <div style="padding:8px;background:rgba(16,185,129,0.08);border-radius:7px;font-size:10.5px;border-left:2px solid var(--gn);"><strong style="color:var(--gn);">Win:</strong> Refund #REF-441 approved. &pound;47 recovered to your account.</div>
+
+    <!-- Side column -->
+    <div>
+      <!-- Savings Counter -->
+      <div class="dp">
+        <div class="dp-h" style="margin-bottom:6px;"><div class="dp-title">P&L Protection</div></div>
+        <div style="padding:10px 0 6px;">
+          <div class="savings-big" id="savings-display">£1,240</div>
+          <div class="savings-sub">Refunds Prevented Today</div>
+        </div>
+        <div class="savings-grid-3" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:10px;">
+          <div style="text-align:center;padding:8px 4px;background:rgba(255,255,255,0.03);border-radius:7px;"><div style="font-weight:800;color:#60a5fa;font-size:14px;" id="sc-actions">23</div><div style="font-size:7.5px;color:#475569;text-transform:uppercase;margin-top:2px;">Actions</div></div>
+          <div style="text-align:center;padding:8px 4px;background:rgba(255,255,255,0.03);border-radius:7px;"><div style="font-weight:800;color:#a855f7;font-size:14px;" id="sc-disputes">5</div><div style="font-size:7.5px;color:#475569;text-transform:uppercase;margin-top:2px;">Disputes</div></div>
+          <div style="text-align:center;padding:8px 4px;background:rgba(255,255,255,0.03);border-radius:7px;"><div style="font-weight:800;color:#10b981;font-size:14px;">100%</div><div style="font-size:7.5px;color:#475569;text-transform:uppercase;margin-top:2px;">Won</div></div>
+        </div>
+        <div style="margin-top:12px;">
+          <div style="display:flex;justify-content:space-between;font-size:9px;color:#475569;margin-bottom:4px;"><span>Monthly Trend</span><span style="color:#10b981;">+£28,340 this month</span></div>
+          <div style="height:4px;background:rgba(255,255,255,0.05);border-radius:2px;overflow:hidden;"><div style="height:100%;width:78%;background:linear-gradient(90deg,#10b981,#06b6d4);border-radius:2px;"></div></div>
+        </div>
+      </div>
+      <!-- Alert Queue -->
+      <div class="dp">
+        <div class="dp-h"><div class="dp-title">⚠️ Active Alerts</div><div class="dp-badge warn" id="alert-badge">3 ACTIVE</div></div>
+        <div id="alert-queue">
+          <div class="alert-item cr"><div><div class="alert-title" style="color:#f87171;">CRITICAL — Order #4824</div><div class="alert-body">Temp loss risk 91% · Sushi 5.8km in rain · Use double insulation immediately</div></div><button class="alert-resolve" onclick="resolveAlert(this,12)">→ Fix</button></div>
+          <div class="alert-item hi"><div><div class="alert-title" style="color:#fbbf24;">HIGH — Order #4821</div><div class="alert-body">Peak hour + 4.2km · 3x Pizza · Verify all items before sealing</div></div><button class="alert-resolve" onclick="resolveAlert(this,8)">→ Fix</button></div>
+          <div class="alert-item md"><div><div class="alert-title" style="color:#60a5fa;">MEDIUM — Order #4822</div><div class="alert-body">Curry liquid contents · Switch to spill-proof bag before dispatch</div></div><button class="alert-resolve" onclick="resolveAlert(this,5)">→ Fix</button></div>
+        </div>
+      </div>
+      <!-- Risk Heatmap -->
+      <div class="dp">
+        <div class="dp-h"><div class="dp-title">Risk Heatmap — This Week</div></div>
+        <div class="hm-day-labels" style="display:flex;justify-content:space-between;font-size:8px;color:#334155;padding:0 0 4px 64px;">
+          <span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span>
+        </div>
+        <div class="heatmap-grid" id="week-heatmap"></div>
+        <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;">
+          <span style="font-size:8px;color:#475569;display:flex;align-items:center;gap:3px;"><span style="width:9px;height:9px;border-radius:2px;background:rgba(16,185,129,0.25);display:inline-block;"></span>Low</span>
+          <span style="font-size:8px;color:#475569;display:flex;align-items:center;gap:3px;"><span style="width:9px;height:9px;border-radius:2px;background:rgba(245,158,11,0.35);display:inline-block;"></span>Med</span>
+          <span style="font-size:8px;color:#475569;display:flex;align-items:center;gap:3px;"><span style="width:9px;height:9px;border-radius:2px;background:rgba(239,68,68,0.42);display:inline-block;"></span>High</span>
+          <span style="font-size:8px;color:#475569;display:flex;align-items:center;gap:3px;"><span style="width:9px;height:9px;border-radius:2px;background:rgba(239,68,68,0.68);display:inline-block;"></span>Peak</span>
+        </div>
       </div>
     </div>
   </div>
 </div>
+
+<!-- ══════════════════════════════════════
+     TAB 2: ORDER MONITOR
+══════════════════════════════════════ -->
+<div class="demo-tab-panel" id="tab-order-monitor">
+  <div class="dp">
+    <div class="dp-h">
+      <div><div class="dp-title">Active Order Risk Monitor</div><div class="dp-sub">Click any order row to run a live AI forensic analysis · All risk scores updated in real-time</div></div>
+      <div style="display:flex;gap:7px;align-items:center;flex-wrap:wrap;">
+        <div class="dp-badge live"><span class="ld"></span> 247 ORDERS</div>
+        <div class="dp-badge warn">18 ALERTS</div>
+      </div>
+    </div>
+    <div style="overflow-x:auto;">
+      <table class="rtable" id="order-table">
+        <thead><tr>
+          <th>Order #</th><th>Items</th><th>Platform</th><th>Dist</th><th>Dispatch</th><th>Weather</th><th>Kitchen Load</th><th>Risk Score</th><th>Status</th><th>Stage</th><th>AI Analyse</th>
+        </tr></thead>
+        <tbody id="order-tbody"></tbody>
+      </table>
+    </div>
+    <!-- AI Analysis Output -->
+    <div class="ai-box hidden" id="ai-order-box" style="margin-top:12px;">
+      <div class="ai-hdr" id="ai-order-hdr">AI Forensic Analysis</div>
+      <div id="ai-order-content"></div>
+    </div>
+  </div>
+
+  <!-- Order pre-dispatch checklist panel -->
+  <div class="d-grid-2">
+    <div class="dp">
+      <div class="dp-h"><div class="dp-title">Pre-Dispatch Quality Checklist</div><div class="dp-badge ai">AI-Generated</div></div>
+      <p style="font-size:10px;color:#64748b;margin-bottom:10px;">Select an order above to generate its specific AI quality checklist, or use the default high-risk protocol:</p>
+      <div id="checklist-items" style="display:flex;flex-direction:column;gap:6px;">
+        <div style="display:flex;align-items:center;gap:8px;padding:8px;background:rgba(255,255,255,0.03);border-radius:7px;cursor:pointer;" onclick="toggleCheck(this)">
+          <div style="width:16px;height:16px;border-radius:4px;border:1px solid rgba(255,255,255,0.2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;"></div>
+          <span style="font-size:10.5px;color:#cbd5e1;">Verify all items against order ticket</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;padding:8px;background:rgba(255,255,255,0.03);border-radius:7px;cursor:pointer;" onclick="toggleCheck(this)">
+          <div style="width:16px;height:16px;border-radius:4px;border:1px solid rgba(255,255,255,0.2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;"></div>
+          <span style="font-size:10.5px;color:#cbd5e1;">Apply double-insulated thermal bag</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;padding:8px;background:rgba(255,255,255,0.03);border-radius:7px;cursor:pointer;" onclick="toggleCheck(this)">
+          <div style="width:16px;height:16px;border-radius:4px;border:1px solid rgba(255,255,255,0.2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;"></div>
+          <span style="font-size:10.5px;color:#cbd5e1;">Seal liquid items in leak-proof containers</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;padding:8px;background:rgba(255,255,255,0.03);border-radius:7px;cursor:pointer;" onclick="toggleCheck(this)">
+          <div style="width:16px;height:16px;border-radius:4px;border:1px solid rgba(255,255,255,0.2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;"></div>
+          <span style="font-size:10.5px;color:#cbd5e1;">Confirm driver assigned and ETA acceptable</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;padding:8px;background:rgba(255,255,255,0.03);border-radius:7px;cursor:pointer;" onclick="toggleCheck(this)">
+          <div style="width:16px;height:16px;border-radius:4px;border:1px solid rgba(255,255,255,0.2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;"></div>
+          <span style="font-size:10.5px;color:#cbd5e1;">Send proactive ETA update to customer</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;padding:8px;background:rgba(255,255,255,0.03);border-radius:7px;cursor:pointer;" onclick="toggleCheck(this)">
+          <div style="width:16px;height:16px;border-radius:4px;border:1px solid rgba(255,255,255,0.2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;"></div>
+          <span style="font-size:10.5px;color:#cbd5e1;">Log dispatch time for forensic record</span>
+        </div>
+      </div>
+      <div style="display:flex;gap:7px;margin-top:10px;">
+        <button class="db-green" onclick="markAllChecked()">✓ Mark All Done</button>
+        <button class="db-secondary" onclick="resetChecklist()">↺ Reset</button>
+      </div>
+    </div>
+    <div class="dp">
+      <div class="dp-h"><div class="dp-title">Intervention Auto-Synthesis</div><div class="dp-badge ai">LIVE AI</div></div>
+      <p style="font-size:10px;color:#64748b;margin-bottom:10px;">AI auto-synthesises interventions for the highest-risk active order. Click to execute any action.</p>
+      <div id="intervention-queue">
+        <div class="alert-item cr">
+          <div><div class="alert-title" style="color:#f87171;">🚨 Order #4824 — CRITICAL</div><div class="alert-body">Action: Use double-insulated bag + hot pack insert · Est. prevents £91 refund risk</div></div>
+          <button class="alert-resolve" onclick="logIntervention(this,'packaging')">Execute</button>
+        </div>
+        <div class="alert-item hi">
+          <div><div class="alert-title" style="color:#fbbf24;">⚠️ Order #4821 — HIGH</div><div class="alert-body">Action: Item-by-item verification at packing station · Est. prevents £87 refund risk</div></div>
+          <button class="alert-resolve" onclick="logIntervention(this,'verify')">Execute</button>
+        </div>
+        <div class="alert-item md">
+          <div><div class="alert-title" style="color:#60a5fa;">ℹ️ All Orders — ADVISORY</div><div class="alert-body">Peak surge in 8 minutes · Pre-stage 4x thermal bags and alert 2 additional staff</div></div>
+          <button class="alert-resolve" onclick="logIntervention(this,'staffing')">Execute</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     TAB 3: RISK SIMULATOR
+══════════════════════════════════════ -->
+<div class="demo-tab-panel" id="tab-risk-simulator">
+  <div class="d-grid-2">
+    <div class="dp">
+      <div class="dp-h"><div><div class="dp-title">⚡ Pre-Dispatch Risk Simulator</div><div class="dp-sub">Configure any order parameters and get instant AI risk scoring with prevention plan</div></div><div class="dp-badge ai">Claude AI</div></div>
+      <div class="fm-row">
+        <div><label class="fm-lbl">Food Type</label>
+          <select class="fm-sel" id="sim-food">
+            <option>3x Large Pizzas + 2 Colas + Garlic Bread</option>
+            <option>Curry Set + Naan + Raita + Mango Lassi</option>
+            <option>6x Sushi Rolls + Miso Soup + Edamame</option>
+            <option>Burger + Fries + Chocolate Milkshake</option>
+            <option>Pasta Carbonara + Garlic Bread + Tiramisu</option>
+            <option>Fish & Chips x2 + Mushy Peas + Tartare</option>
+            <option>Korean BBQ Set + Bibimbap + Kimchi</option>
+            <option>Vegan Buddha Bowl + Green Smoothie</option>
+            <option>Chinese Takeaway (8 dishes, family set)</option>
+            <option>Indian Thali Set + Poppadoms + Pickles</option>
+          </select>
+        </div>
+        <div><label class="fm-lbl">Delivery Distance</label>
+          <select class="fm-sel" id="sim-dist">
+            <option>0.8 km — Very Short</option>
+            <option>1.5 km — Short</option>
+            <option selected>3.5 km — Medium</option>
+            <option>5.2 km — Long</option>
+            <option>7.8 km — Very Long</option>
+            <option>11.2 km — Extended</option>
+          </select>
+        </div>
+      </div>
+      <div class="fm-row">
+        <div><label class="fm-lbl">Time of Day</label>
+          <select class="fm-sel" id="sim-time">
+            <option>11:45 AM — Lunch Rush</option>
+            <option selected>6:30 PM — Dinner Peak</option>
+            <option>8:00 PM — Late Dinner</option>
+            <option>2:30 PM — Quiet Period</option>
+            <option>11:00 PM — Late Night</option>
+            <option>7:00 PM — Friday Peak (Highest Risk)</option>
+          </select>
+        </div>
+        <div><label class="fm-lbl">Weather Conditions</label>
+          <select class="fm-sel" id="sim-weather">
+            <option>☀️ Clear and Dry</option>
+            <option selected>🌧️ Light Rain</option>
+            <option>⛈️ Heavy Rain & Wind</option>
+            <option>💨 Strong Wind</option>
+            <option>❄️ Snow / Ice</option>
+            <option>🌫️ Dense Fog</option>
+          </select>
+        </div>
+      </div>
+      <div class="fm-row">
+        <div><label class="fm-lbl">Kitchen Load</label>
+          <select class="fm-sel" id="sim-load">
+            <option>Quiet — 3 active orders</option>
+            <option selected>Medium — 12 active orders</option>
+            <option>Busy — 24 active orders</option>
+            <option>Surge — 38+ orders (max stress)</option>
+          </select>
+        </div>
+        <div><label class="fm-lbl">Delivery Platform</label>
+          <select class="fm-sel" id="sim-platform">
+            <option>Deliveroo</option>
+            <option selected>Uber Eats</option>
+            <option>Just Eat</option>
+            <option>Direct Online Order</option>
+          </select>
+        </div>
+      </div>
+      <div class="fm-row">
+        <div><label class="fm-lbl">Kitchen Staffing</label>
+          <select class="fm-sel" id="sim-staff">
+            <option>Understaffed (1 person short)</option>
+            <option selected>Normal staffing</option>
+            <option>Fully staffed + trainee</option>
+          </select>
+        </div>
+        <div><label class="fm-lbl">Recent Issues (Last 24h)</label>
+          <select class="fm-sel" id="sim-history">
+            <option>None — clean record</option>
+            <option selected>1 cold food complaint</option>
+            <option>2+ missing item reports</option>
+            <option>3+ complaints (poor streak)</option>
+          </select>
+        </div>
+      </div>
+      <button class="db-primary db-full" onclick="runSimulator()" id="sim-btn" style="margin-top:6px;">
+        ⚡ Generate AI Risk Score + Prevention Plan
+      </button>
+    </div>
+
+    <div>
+      <!-- Risk Gauge -->
+      <div class="dp">
+        <div class="dp-h"><div class="dp-title">Risk Score Gauge</div></div>
+        <div class="gauge-wrap" id="gauge-wrap">
+          <div class="gauge-ring">
+            <svg class="gauge-svg" width="110" height="110" viewBox="0 0 110 110">
+              <circle class="gauge-bg" cx="55" cy="55" r="44"/>
+              <circle class="gauge-fill" id="gauge-circle" cx="55" cy="55" r="44" stroke-dasharray="276.46" stroke-dashoffset="276.46" stroke="#ef4444"/>
+            </svg>
+            <div class="gauge-inner">
+              <div class="gauge-pct" id="gauge-pct" style="color:#64748b;">–</div>
+              <div class="gauge-lbl">Risk Score</div>
+              <div class="gauge-risk" id="gauge-risk" style="color:#64748b;">Run simulation</div>
+            </div>
+          </div>
+        </div>
+        <div id="risk-breakdown" style="margin-top:8px;display:none;">
+          <div class="dp-sub" style="margin-bottom:6px;">Risk Factor Breakdown:</div>
+          <div id="risk-factors-display" class="fp-radar"></div>
+        </div>
+      </div>
+      <!-- AI Sim Result -->
+      <div class="ai-box purple hidden" id="sim-ai-box" style="margin-top:0;">
+        <div class="ai-hdr purple">AI Risk Assessment</div>
+        <div id="sim-ai-content"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     TAB 4: FINGERPRINT ENGINE
+══════════════════════════════════════ -->
+<div class="demo-tab-panel" id="tab-fingerprint-engine">
+  <div class="d-grid-2">
+    <div>
+      <div class="dp">
+        <div class="dp-h"><div><div class="dp-title">🧬 Complaint-Risk Fingerprinting Engine</div><div class="dp-sub">Enter order details to generate a full risk fingerprint — 40+ behavioral signals analysed</div></div><div class="dp-badge ai">Live AI</div></div>
+        <div class="fm-row-3">
+          <div><label class="fm-lbl">Restaurant Name</label><input class="fm-inp" id="fp-rest" value="Harlow Pizza Co." placeholder="e.g. Spice Garden"></div>
+          <div><label class="fm-lbl">Order Value (£)</label><input class="fm-inp" id="fp-val" type="text" value="£42.50" placeholder="£0.00"></div>
+          <div><label class="fm-lbl">Item Count</label><input class="fm-inp" id="fp-items" type="number" value="5" min="1" max="20"></div>
+        </div>
+        <div class="fm-row">
+          <div><label class="fm-lbl">Menu Category</label>
+            <select class="fm-sel" id="fp-cat">
+              <option selected>Hot food (pizzas, curries, pasta)</option>
+              <option>Cold/sushi (temperature-critical)</option>
+              <option>Liquid-heavy (soups, drinks, sauces)</option>
+              <option>Fragile items (desserts, cakes)</option>
+              <option>Mixed category</option>
+            </select>
+          </div>
+          <div><label class="fm-lbl">Prep Time (mins)</label>
+            <select class="fm-sel" id="fp-prep">
+              <option>10-15 mins (fast)</option>
+              <option selected>15-25 mins (standard)</option>
+              <option>25-35 mins (complex)</option>
+              <option>35+ mins (very complex)</option>
+            </select>
+          </div>
+        </div>
+        <div class="fm-row">
+          <div><label class="fm-lbl">Driver Rating (platform avg)</label>
+            <select class="fm-sel" id="fp-driver">
+              <option>★★★★★ 4.8-5.0 (excellent)</option>
+              <option selected>★★★★☆ 4.3-4.7 (good)</option>
+              <option>★★★☆☆ 3.5-4.2 (average)</option>
+              <option>★★☆☆☆ Below 3.5 (poor)</option>
+            </select>
+          </div>
+          <div><label class="fm-lbl">Customer History</label>
+            <select class="fm-sel" id="fp-cust">
+              <option selected>New customer — no history</option>
+              <option>Loyal customer — 10+ orders</option>
+              <option>Previously complained once</option>
+              <option>High-refund history (3+ claims)</option>
+            </select>
+          </div>
+        </div>
+        <button class="db-primary db-full" onclick="generateFingerprint()" id="fp-btn" style="margin-top:6px;">
+          🧬 Generate Risk Fingerprint
+        </button>
+      </div>
+    </div>
+    <div>
+      <div class="dp">
+        <div class="dp-h"><div class="dp-title">Risk Fingerprint Visualisation</div></div>
+        <div id="fp-visual-wrap">
+          <div style="text-align:center;padding:20px;color:#334155;font-size:11px;">Run fingerprint generation to see the visual breakdown of all risk signals</div>
+          <div class="fp-radar" id="fp-radar-display" style="display:none;"></div>
+        </div>
+        <div class="ai-box hidden" id="fp-ai-box" style="margin-top:10px;">
+          <div class="ai-hdr">Fingerprint Intelligence Report</div>
+          <div id="fp-ai-content"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Historical Fingerprints -->
+  <div class="dp">
+    <div class="dp-h"><div class="dp-title">Historical Risk Fingerprint Library</div><div class="dp-badge pur">OLM Database</div></div>
+    <p style="font-size:10px;color:#64748b;margin-bottom:10px;">Stored fingerprints from past orders — each one improves future prediction accuracy via Outcome Learning Memory</p>
+    <div id="fp-library" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:9px;"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     TAB 5: FORENSICS LAB
+══════════════════════════════════════ -->
+<div class="demo-tab-panel" id="tab-forensics-lab">
+  <div class="d-grid-wide2">
+    <div>
+      <div class="dp">
+        <div class="dp-h"><div><div class="dp-title">🔬 Failure Attribution Forensics Engine</div><div class="dp-sub">AI determines: was the failure caused by the restaurant, the driver, or the platform?</div></div><div class="dp-badge ai">CFFE Active</div></div>
+        <div class="fm-row">
+          <div><label class="fm-lbl">Complaint Type</label>
+            <select class="fm-sel" id="flab-type">
+              <option>Cold food on arrival</option>
+              <option>Missing items in order</option>
+              <option>Wrong order delivered</option>
+              <option>Food arrived late (>45 min)</option>
+              <option>Damaged / spilled packaging</option>
+              <option>Raw / undercooked food</option>
+              <option>Order never arrived</option>
+            </select>
+          </div>
+          <div><label class="fm-lbl">Platform Reporting</label>
+            <select class="fm-sel" id="flab-platform">
+              <option>Uber Eats — automated refund</option>
+              <option selected>Deliveroo — chargeback applied</option>
+              <option>Just Eat — dispute raised</option>
+              <option>Direct order — customer complaint</option>
+            </select>
+          </div>
+        </div>
+        <div class="fm-row">
+          <div><label class="fm-lbl">Order Dispatch Time</label><input class="fm-inp" id="flab-dispatch" value="18:42" placeholder="HH:MM"></div>
+          <div><label class="fm-lbl">Driver Pickup Time</label><input class="fm-inp" id="flab-pickup" value="18:58" placeholder="HH:MM"></div>
+        </div>
+        <div class="fm-row">
+          <div><label class="fm-lbl">Delivery Completion</label><input class="fm-inp" id="flab-delivery" value="19:24" placeholder="HH:MM"></div>
+          <div><label class="fm-lbl">Kitchen Log Notes</label><input class="fm-inp" id="flab-notes" value="All items verified, double-bagged" placeholder="e.g. Items checked..."></div>
+        </div>
+        <div><label class="fm-lbl">Additional Context</label><textarea class="fm-textarea" id="flab-context" placeholder="Any additional context about the order or circumstances...">Order was packed at 18:40, all 5 items verified by supervisor. Dispatch logged at 18:42. Driver collected at 18:58 (16 min wait). Customer reported cold food at 19:31.</textarea></div>
+        <button class="db-primary db-full" onclick="runForensics()" id="flab-btn" style="margin-top:8px;">
+          🔬 Run Full Attribution Forensics
+        </button>
+      </div>
+    </div>
+    <div>
+      <!-- Attribution result -->
+      <div class="dp">
+        <div class="dp-h"><div class="dp-title">Attribution Result</div></div>
+        <div id="attribution-gauge" style="display:none;">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px;text-align:center;">
+            <div style="padding:10px;background:rgba(239,68,68,0.08);border-radius:8px;border:1px solid rgba(239,68,68,0.18);">
+              <div style="font-size:20px;font-weight:800;color:#ef4444;" id="attr-kitchen">–%</div>
+              <div style="font-size:8.5px;color:#64748b;margin-top:2px;">Kitchen Fault</div>
+            </div>
+            <div style="padding:10px;background:rgba(245,158,11,0.08);border-radius:8px;border:1px solid rgba(245,158,11,0.18);">
+              <div style="font-size:20px;font-weight:800;color:#f59e0b;" id="attr-driver">–%</div>
+              <div style="font-size:8.5px;color:#64748b;margin-top:2px;">Driver/Transit Fault</div>
+            </div>
+            <div style="padding:10px;background:rgba(26,110,245,0.08);border-radius:8px;border:1px solid rgba(26,110,245,0.18);">
+              <div style="font-size:20px;font-weight:800;color:#60a5fa;" id="attr-platform">–%</div>
+              <div style="font-size:8.5px;color:#64748b;margin-top:2px;">Platform Fault</div>
+            </div>
+          </div>
+          <div id="attr-verdict" style="text-align:center;padding:10px;border-radius:9px;margin-bottom:10px;font-weight:700;font-size:12px;"></div>
+        </div>
+        <div class="ai-box green hidden" id="flab-ai-box">
+          <div class="ai-hdr green">Forensic Attribution Report</div>
+          <div id="flab-ai-content"></div>
+        </div>
+        <div id="flab-empty" style="text-align:center;padding:20px;color:#334155;font-size:11px;">Run forensics analysis to see attribution breakdown and evidence report</div>
+      </div>
+
+      <!-- Pre-built evidence templates -->
+      <div class="dp">
+        <div class="dp-h"><div class="dp-title">Evidence Bundle Templates</div><div class="dp-badge pur">Quick-Launch</div></div>
+        <p style="font-size:10px;color:#64748b;margin-bottom:9px;">Pre-built evidence packages for the most common dispute types — fill in order details then generate.</p>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <button class="db-secondary" onclick="loadForensicsTemplate('cold')" style="text-align:left;padding:9px 12px;border-radius:8px;">🌡️ Cold Food Dispute Template</button>
+          <button class="db-secondary" onclick="loadForensicsTemplate('missing')" style="text-align:left;padding:9px 12px;border-radius:8px;">📦 Missing Items Template</button>
+          <button class="db-secondary" onclick="loadForensicsTemplate('late')" style="text-align:left;padding:9px 12px;border-radius:8px;">⏱️ Late Delivery (Driver Fault) Template</button>
+          <button class="db-secondary" onclick="loadForensicsTemplate('damaged')" style="text-align:left;padding:9px 12px;border-radius:8px;">💥 Packaging Damage Template</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     TAB 6: DISPUTE CENTER
+══════════════════════════════════════ -->
+<div class="demo-tab-panel" id="tab-dispute-center">
+  <div class="d-grid-2">
+    <div class="dp">
+      <div class="dp-h"><div><div class="dp-title">⚖️ Automated Dispute Evidence Generator</div><div class="dp-sub">AI builds professional dispute bundles to challenge invalid aggregator refunds</div></div><div class="dp-badge ai">Claude AI</div></div>
+      <div class="fm-row">
+        <div><label class="fm-lbl">Refund Claim Type</label>
+          <select class="fm-sel" id="disp-type">
+            <option>Cold food on arrival</option>
+            <option selected>Missing items from order</option>
+            <option>Wrong order delivered</option>
+            <option>Food quality complaint</option>
+            <option>Excessive delivery delay</option>
+            <option>Damaged packaging on arrival</option>
+          </select>
+        </div>
+        <div><label class="fm-lbl">Order Value (£)</label><input class="fm-inp" id="disp-value" type="text" value="£52.80"></div>
+      </div>
+      <div class="fm-row">
+        <div><label class="fm-lbl">Dispatch Time</label><input class="fm-inp" id="disp-dispatch" value="18:42"></div>
+        <div><label class="fm-lbl">Driver Pickup Time</label><input class="fm-inp" id="disp-pickup" value="18:58"></div>
+      </div>
+      <div class="fm-row">
+        <div><label class="fm-lbl">Delivery Completion</label><input class="fm-inp" id="disp-delivery" value="19:19"></div>
+        <div><label class="fm-lbl">Platform</label>
+          <select class="fm-sel" id="disp-platform">
+            <option selected>Uber Eats</option><option>Deliveroo</option><option>Just Eat</option>
+          </select>
+        </div>
+      </div>
+      <div><label class="fm-lbl">Kitchen Evidence Notes (DCPE logged)</label>
+        <textarea class="fm-textarea" id="disp-evidence">All 5 items verified by kitchen supervisor at 18:40. Thermal bag used. Dispatch temperature check: 74°C core temp confirmed. Driver rated 4.8★. Order delivered in 37 minutes total.</textarea>
+      </div>
+      <button class="db-primary db-full" onclick="generateDispute()" id="disp-btn" style="margin-top:8px;">
+        ⚖️ Generate Full Dispute Evidence Bundle
+      </button>
+    </div>
+    <div>
+      <div class="ai-box green hidden" id="disp-result" style="min-height:200px;">
+        <div class="ai-hdr green">Dispute Evidence Bundle — Ready to Submit</div>
+        <div id="disp-content"></div>
+      </div>
+      <div id="disp-empty-msg" style="padding:20px;text-align:center;color:#334155;font-size:11px;">Generate a dispute bundle to see the professional evidence package ready for platform submission</div>
+    </div>
+  </div>
+
+  <!-- Dispute Tracker -->
+  <div class="dp">
+    <div class="dp-h"><div class="dp-title">Dispute Tracker — Active Cases</div><div class="dp-badge pur">23/23 Won This Month</div></div>
+    <div class="dispute-row head"><div>Ref #</div><div>Complaint</div><div>Value</div><div>Status</div></div>
+    <div id="dispute-tracker">
+      <div class="dispute-row"><div style="font-weight:700;color:#e2e8f0;">#REF-441</div><div style="color:#94a3b8;font-size:10px;">Cold food — driver delay proven</div><div style="color:#10b981;font-weight:700;">+£47</div><div><span class="rb rb-ok">WON</span></div></div>
+      <div class="dispute-row"><div style="font-weight:700;color:#e2e8f0;">#REF-438</div><div style="color:#94a3b8;font-size:10px;">Missing item — packing error internal</div><div style="color:#ef4444;font-weight:700;">-£12</div><div><span class="rb rb-hi">ACCEPTED</span></div></div>
+      <div class="dispute-row"><div style="font-weight:700;color:#e2e8f0;">#REF-445</div><div style="color:#94a3b8;font-size:10px;">Late delivery — weather attribution</div><div style="color:#10b981;font-weight:700;">+£38</div><div><span class="rb rb-ok">WON</span></div></div>
+      <div class="dispute-row"><div style="font-weight:700;color:#e2e8f0;">#REF-447</div><div style="color:#94a3b8;font-size:10px;">Damaged packaging — in review</div><div style="color:#f59e0b;font-weight:700;">£62</div><div><span class="rb rb-md">IN REVIEW</span></div></div>
+      <div class="dispute-row"><div style="font-weight:700;color:#e2e8f0;">#REF-449</div><div style="color:#94a3b8;font-size:10px;">Wrong order — driver mix-up proven</div><div style="color:#10b981;font-weight:700;">+£71</div><div><span class="rb rb-ok">WON</span></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     TAB 7: OLM MEMORY
+══════════════════════════════════════ -->
+<div class="demo-tab-panel" id="tab-olm-memory">
+  <div class="kpi-strip" style="grid-template-columns:repeat(4,1fr);margin-bottom:14px;">
+    <div class="kpi-card" style="--kc:linear-gradient(90deg,#a855f7,#ec4899)"><div class="kpi-val" style="color:#c084fc;">2,847</div><div class="kpi-lbl">Stored Patterns</div><div class="kpi-trend up">↑ +34 today</div></div>
+    <div class="kpi-card" style="--kc:linear-gradient(90deg,#1a6ef5,#06b6d4)"><div class="kpi-val" style="color:#60a5fa;">96.2%</div><div class="kpi-lbl">Pattern Accuracy</div><div class="kpi-trend up">↑ +0.3% this week</div></div>
+    <div class="kpi-card" style="--kc:linear-gradient(90deg,#10b981,#1a6ef5)"><div class="kpi-val" style="color:#34d399;">142</div><div class="kpi-lbl">CQN Participants</div><div class="kpi-trend up">↑ 5 new this week</div></div>
+    <div class="kpi-card" style="--kc:linear-gradient(90deg,#f59e0b,#ef4444)"><div class="kpi-val" style="color:#fbbf24;">£8,420</div><div class="kpi-lbl">ROI from OLM</div><div class="kpi-trend up">↑ from learnt patterns</div></div>
+  </div>
+
+  <div class="d-grid-wide">
+    <div>
+      <div class="dp">
+        <div class="dp-h"><div><div class="dp-title">🧠 Outcome Learning Memory — Stored Intelligence Patterns</div><div class="dp-sub">Every successful intervention is encoded as a reusable pattern to prevent future failures</div></div><div class="dp-badge pur">Live OLM</div></div>
+        <div id="olm-patterns">
+          <div class="olm-card"><div class="olm-card-h"><div class="olm-pattern">🌧️ Rain + Sushi + Distance &gt;5km = High Temp Risk</div><div class="olm-accuracy" style="color:#10b981;">99.1% acc.</div></div><div class="olm-desc">Pattern learnt from 34 incidents: 5.8km sushi delivery in rain consistently results in temperature complaints. Intervention: double insulation + hot pack. Prevents 97% of complaints when applied.</div></div>
+          <div class="olm-card"><div class="olm-card-h"><div class="olm-pattern">🍛 Curry + Liquid Items → Spill-Proof Packaging Required</div><div class="olm-accuracy" style="color:#10b981;">97.4% acc.</div></div><div class="olm-desc">Learnt from 28 curry/liquid incidents. Raita, dhal, and curry sauce require sealed containers. Standard bag results in 64% spill probability over 2km+ routes. Switching to sealed packaging eliminates 97% of spill claims.</div></div>
+          <div class="olm-card"><div class="olm-card-h"><div class="olm-pattern">⏰ Friday 6-7PM Surge → Pre-Stage Thermal Bags +30 min</div><div class="olm-accuracy" style="color:#f59e0b;">94.8% acc.</div></div><div class="olm-desc">Volume spikes 42% every Friday 6-8PM. Without pre-staging bags, packing time increases by 3-4 mins per order, creating a cascade of cold food complaints. Pre-staging 30 mins before peak prevents 89% of temperature failures.</div></div>
+          <div class="olm-card"><div class="olm-card-h"><div class="olm-pattern">👤 High-Refund Customer History → Enhanced Verification</div><div class="olm-accuracy" style="color:#f59e0b;">91.2% acc.</div></div><div class="olm-desc">Customers with 3+ previous refund claims on any platform have 78% higher complaint probability regardless of actual service quality. Dual-verification and photographic evidence capture reduces dispute losses by 84%.</div></div>
+          <div class="olm-card"><div class="olm-card-h"><div class="olm-pattern">🍕 Complex Multi-Item Order + Peak Hour = Missing Item Risk</div><div class="olm-accuracy" style="color:#10b981;">96.3% acc.</div></div><div class="olm-desc">Orders with 6+ items placed during kitchen surge periods show 71% increased missing-item probability. Structured packing checklist with verbal confirmation reduces errors to near-zero regardless of order complexity.</div></div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <!-- AI OLM Query -->
+      <div class="dp">
+        <div class="dp-h"><div><div class="dp-title">Ask the OLM Database</div><div class="dp-sub">Query learned patterns with natural language</div></div><div class="dp-badge ai">AI</div></div>
+        <p style="font-size:10px;color:#64748b;margin-bottom:9px;">Ask the Outcome Learning Memory anything about learned patterns, success rates, or recommendations:</p>
+        <textarea class="fm-textarea" id="olm-query" style="min-height:80px;" placeholder="e.g. What interventions work best for reducing cold food complaints on long-distance orders?&#10;&#10;Or: What patterns have been learnt about weekend delivery failures?"></textarea>
+        <button class="db-primary db-full" onclick="queryOLM()" id="olm-btn" style="margin-top:8px;">🧠 Query OLM Intelligence</button>
+        <div class="ai-box purple hidden" id="olm-result" style="margin-top:9px;">
+          <div class="ai-hdr purple">OLM Intelligence Response</div>
+          <div id="olm-content"></div>
+        </div>
+      </div>
+      <!-- CQN Stats -->
+      <div class="dp">
+        <div class="dp-h"><div class="dp-title">Community Quality Network (CQN)</div><div class="dp-badge live"><span class="ld"></span> Federated</div></div>
+        <p style="font-size:10px;color:#64748b;margin-bottom:10px;">Anonymised learnings from 142 UK takeaway partners improve prediction accuracy across the network without sharing sensitive data.</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <div class="cqn-stat"><div class="cqn-val" style="color:#a855f7;">142</div><div class="cqn-lbl">CQN Partners</div></div>
+          <div class="cqn-stat"><div class="cqn-val" style="color:#60a5fa;">2.1M</div><div class="cqn-lbl">Orders Analysed</div></div>
+          <div class="cqn-stat"><div class="cqn-val" style="color:#10b981;">96.2%</div><div class="cqn-lbl">Accuracy (CQN)</div></div>
+          <div class="cqn-stat"><div class="cqn-val" style="color:#fbbf24;">+18%</div><div class="cqn-lbl">Better than solo</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     TAB 8: AI ADVISOR CHAT
+══════════════════════════════════════ -->
+<div class="demo-tab-panel" id="tab-ai-advisor">
+  <div class="d-grid-wide2">
+    <div class="dp" style="height:calc(100vh - 200px);min-height:500px;display:flex;flex-direction:column;">
+      <div class="dp-h" style="flex-shrink:0;">
+        <div>
+          <div class="dp-title">🤖 DCPE AI Operations Advisor</div>
+          <div class="dp-sub">Powered by Claude Sonnet — your 24/7 expert on UK food delivery operations, risk prevention, and dispute resolution</div>
+        </div>
+        <div class="dp-badge live"><span class="ld"></span> LIVE AI</div>
+      </div>
+      <div class="chat-area">
+        <div class="chat-msgs" id="chat-msgs">
+          <div class="msg bot">
+            <div class="msg-from">DCPE AI Advisor</div>
+            Hello! I'm your AI Operations Advisor, powered by the Delivery Complaint Prevention Engine. I have deep knowledge of UK food delivery operations, the DCPE platform (Risk Fingerprinting, Forensics Engine, OLM Memory), dispute resolution with Deliveroo/Uber Eats/Just Eat, and pre-dispatch prevention strategies.<br><br>
+            You have <strong>18 active risk alerts</strong>, your prevention rate is <strong>94.3%</strong>, and you've saved <strong>£1,240</strong> in refunds today. What would you like to know?
+          </div>
+        </div>
+        <div class="quick-chips" id="quick-chips">
+          <button class="chip" onclick="sendQuick(this)">Why is Order #4824 critical?</button>
+          <button class="chip" onclick="sendQuick(this)">How do I reduce cold food complaints?</button>
+          <button class="chip" onclick="sendQuick(this)">Best Friday peak hour strategy?</button>
+          <button class="chip" onclick="sendQuick(this)">How does Fingerprinting work?</button>
+          <button class="chip" onclick="sendQuick(this)">Explain the Attribution Forensics Engine</button>
+          <button class="chip" onclick="sendQuick(this)">How do I win Deliveroo disputes?</button>
+          <button class="chip" onclick="sendQuick(this)">What packaging for sushi deliveries?</button>
+          <button class="chip" onclick="sendQuick(this)">Explain the OLM Memory system</button>
+        </div>
+        <div class="chat-row">
+          <input class="chat-input" id="chat-inp" placeholder="Ask about orders, risk, disputes, operations…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat();}">
+          <button class="chat-send" id="chat-send-btn" onclick="sendChat()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div>
+      <!-- Context Panel -->
+      <div class="dp">
+        <div class="dp-h"><div class="dp-title">Current Context</div></div>
+        <div style="display:flex;flex-direction:column;gap:6px;font-size:10.5px;">
+          <div class="rbd-item"><span class="rbd-label">Active Orders</span><span class="rbd-val" style="color:#10b981;">247</span></div>
+          <div class="rbd-item"><span class="rbd-label">Risk Alerts</span><span class="rbd-val" style="color:#ef4444;">18</span></div>
+          <div class="rbd-item"><span class="rbd-label">Prevention Rate</span><span class="rbd-val" style="color:#60a5fa;">94.3%</span></div>
+          <div class="rbd-item"><span class="rbd-label">Saved Today</span><span class="rbd-val" style="color:#10b981;" id="ctx-saved">£1,240</span></div>
+          <div class="rbd-item"><span class="rbd-label">OLM Patterns</span><span class="rbd-val" style="color:#a855f7;">2,847</span></div>
+          <div class="rbd-item"><span class="rbd-label">CQN Partners</span><span class="rbd-val" style="color:#fbbf24;">142</span></div>
+          <div class="rbd-item"><span class="rbd-label">Disputes Won</span><span class="rbd-val" style="color:#10b981;">23/23</span></div>
+        </div>
+      </div>
+      <!-- Suggested Questions by Category -->
+      <div class="dp">
+        <div class="dp-h"><div class="dp-title">Question Categories</div></div>
+        <div style="display:flex;flex-direction:column;gap:5px;">
+          <div style="font-size:8.5px;color:#475569;text-transform:uppercase;letter-spacing:1px;margin-top:4px;margin-bottom:2px;">Risk & Prevention</div>
+          <button class="chip" style="text-align:left;width:100%;border-radius:7px;" onclick="sendQuick(this)">What are the top 3 causes of complaints right now?</button>
+          <button class="chip" style="text-align:left;width:100%;border-radius:7px;" onclick="sendQuick(this)">Which orders should I prioritise checking tonight?</button>
+          <div style="font-size:8.5px;color:#475569;text-transform:uppercase;letter-spacing:1px;margin-top:8px;margin-bottom:2px;">Disputes & Finances</div>
+          <button class="chip" style="text-align:left;width:100%;border-radius:7px;" onclick="sendQuick(this)">What is my aggregator refund exposure this week?</button>
+          <button class="chip" style="text-align:left;width:100%;border-radius:7px;" onclick="sendQuick(this)">How do I maximise dispute win rate with Uber Eats?</button>
+          <div style="font-size:8.5px;color:#475569;text-transform:uppercase;letter-spacing:1px;margin-top:8px;margin-bottom:2px;">Platform & Operations</div>
+          <button class="chip" style="text-align:left;width:100%;border-radius:7px;" onclick="sendQuick(this)">How does the Community Quality Network work?</button>
+          <button class="chip" style="text-align:left;width:100%;border-radius:7px;" onclick="sendQuick(this)">What ROI can I expect in Year 1 of using DCPE?</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     TAB 9: INTEGRATIONS
+══════════════════════════════════════ -->
+<div class="demo-tab-panel" id="tab-integrations">
+  <div class="d-grid-2">
+    <div class="dp">
+      <div class="dp-h"><div><div class="dp-title">🔌 Platform Integrations</div><div class="dp-sub">DCPE connects with your existing restaurant tech stack — no workflow disruption</div></div></div>
+      <div id="integrations-list">
+        <div class="int-item"><div class="int-left"><div class="int-icon" style="background:rgba(239,68,68,0.15);">🛵</div><div><div class="int-name">Deliveroo Merchant</div><div class="int-sub">Order flow + refund tracking + driver data</div></div></div><div class="int-status int-ok"><div class="int-dot"></div>Connected</div></div>
+        <div class="int-item"><div class="int-left"><div class="int-icon" style="background:rgba(16,185,129,0.15);">🚗</div><div><div class="int-name">Uber Eats Restaurant</div><div class="int-sub">Real-time orders + dispute submission API</div></div></div><div class="int-status int-ok"><div class="int-dot"></div>Connected</div></div>
+        <div class="int-item"><div class="int-left"><div class="int-icon" style="background:rgba(245,158,11,0.15);">🧡</div><div><div class="int-name">Just Eat Takeaway</div><div class="int-sub">Order ingestion + performance metrics</div></div></div><div class="int-status int-ok"><div class="int-dot"></div>Connected</div></div>
+        <div class="int-item"><div class="int-left"><div class="int-icon" style="background:rgba(26,110,245,0.15);">📱</div><div><div class="int-name">Square POS</div><div class="int-sub">Order-level data sync + inventory signals</div></div></div><div class="int-status int-ok"><div class="int-dot"></div>Connected</div></div>
+        <div class="int-item"><div class="int-left"><div class="int-icon" style="background:rgba(168,85,247,0.15);">⚡</div><div><div class="int-name">Lightspeed POS</div><div class="int-sub">Advanced kitchen data + prep-time signals</div></div></div><div class="int-status int-pend"><div class="int-dot"></div>Pending Setup</div></div>
+        <div class="int-item"><div class="int-left"><div class="int-icon" style="background:rgba(6,182,212,0.15);">🖥️</div><div><div class="int-name">Kitchen Display System</div><div class="int-sub">Real-time KDS alerts + packing prompts</div></div></div><div class="int-status int-ok"><div class="int-dot"></div>Connected</div></div>
+        <div class="int-item"><div class="int-left"><div class="int-icon" style="background:rgba(16,185,129,0.15);">📊</div><div><div class="int-name">Deliverect Hub</div><div class="int-sub">Unified multi-channel order management</div></div></div><div class="int-status int-pend"><div class="int-dot"></div>Pending Setup</div></div>
+        <div class="int-item"><div class="int-left"><div class="int-icon" style="background:rgba(245,158,11,0.15);">☁️</div><div><div class="int-name">UK GDPR / ICO Compliance</div><div class="int-sub">Data protection + audit logging active</div></div></div><div class="int-status int-ok"><div class="int-dot"></div>Compliant</div></div>
+      </div>
+    </div>
+    <div>
+      <div class="dp">
+        <div class="dp-h"><div class="dp-title">AI Integration Health Check</div><div class="dp-badge ai">Claude AI</div></div>
+        <p style="font-size:10px;color:#64748b;margin-bottom:9px;">Describe your current tech stack and get AI recommendations on optimal DCPE integration approach:</p>
+        <div class="fm-row">
+          <div><label class="fm-lbl">POS System</label>
+            <select class="fm-sel" id="int-pos">
+              <option>Square</option><option>Lightspeed</option><option>Toast</option><option>Epos Now</option><option>Tevalis</option><option>None / Manual</option>
+            </select>
+          </div>
+          <div><label class="fm-lbl">Delivery Platforms</label>
+            <select class="fm-sel" id="int-platforms">
+              <option>All 3 (Deliveroo + UberEats + JustEat)</option>
+              <option>Deliveroo + Uber Eats</option>
+              <option>Uber Eats only</option>
+              <option>Deliveroo only</option>
+              <option>Just Eat only</option>
+            </select>
+          </div>
+        </div>
+        <div class="fm-row">
+          <div><label class="fm-lbl">Business Type</label>
+            <select class="fm-sel" id="int-biz">
+              <option>Independent single-site takeaway</option>
+              <option>Multi-site (2-5 locations)</option>
+              <option>Cloud / dark kitchen</option>
+              <option>Franchise group</option>
+            </select>
+          </div>
+          <div><label class="fm-lbl">Monthly Orders</label>
+            <select class="fm-sel" id="int-vol">
+              <option>&lt;500 orders/month</option>
+              <option selected>500-2,000 orders/month</option>
+              <option>2,000-8,000 orders/month</option>
+              <option>8,000+ orders/month</option>
+            </select>
+          </div>
+        </div>
+        <button class="db-primary db-full" onclick="getIntegrationAdvice()" id="int-btn" style="margin-top:6px;">
+          🔌 Get AI Integration Recommendations
+        </button>
+        <div class="ai-box hidden" id="int-result" style="margin-top:9px;">
+          <div class="ai-hdr">Integration Roadmap</div>
+          <div id="int-content"></div>
+        </div>
+      </div>
+      <div class="dp">
+        <div class="dp-h"><div class="dp-title">API Status</div><div class="dp-badge live"><span class="ld"></span> All Systems</div></div>
+        <div style="display:flex;flex-direction:column;gap:5px;font-size:10px;">
+          <div style="display:flex;justify-content:space-between;padding:6px 8px;background:rgba(255,255,255,0.02);border-radius:6px;"><span style="color:#94a3b8;">Risk Scoring API</span><span style="color:#10b981;font-weight:600;">● 99.98% uptime</span></div>
+          <div style="display:flex;justify-content:space-between;padding:6px 8px;background:rgba(255,255,255,0.02);border-radius:6px;"><span style="color:#94a3b8;">Dispute Evidence API</span><span style="color:#10b981;font-weight:600;">● 99.95% uptime</span></div>
+          <div style="display:flex;justify-content:space-between;padding:6px 8px;background:rgba(255,255,255,0.02);border-radius:6px;"><span style="color:#94a3b8;">Platform Webhooks</span><span style="color:#10b981;font-weight:600;">● Active</span></div>
+          <div style="display:flex;justify-content:space-between;padding:6px 8px;background:rgba(255,255,255,0.02);border-radius:6px;"><span style="color:#94a3b8;">OLM Learning Sync</span><span style="color:#10b981;font-weight:600;">● Real-time</span></div>
+          <div style="display:flex;justify-content:space-between;padding:6px 8px;background:rgba(255,255,255,0.02);border-radius:6px;"><span style="color:#94a3b8;">GDPR Audit Logging</span><span style="color:#10b981;font-weight:600;">● Compliant</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /demo-body -->
+</div><!-- /demo-shell -->
+
+<script>
+
+/* AI CALL HELPER - handles CORS for both artifact runner and standalone */
+/* -------------------------------------------------------
+   DCPE AI ROUTER
+   Works in 3 environments automatically:
+   1. claude.ai artifact runner  -> direct call (proxied by Claude)
+   2. Vercel deployment          -> /api/ai serverless proxy
+   3. Any other host             -> /api/ai relative proxy
+------------------------------------------------------- */
+async function dcpeAI(payload) {
+  var body = JSON.stringify(payload);
+  var DIRECT = 'https://api.anthropic.com/v1/messages';
+  var HDR = {'Content-Type':'application/json','anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'};
+
+  // 1. Claude.ai artifact runner: direct fetch is auto-proxied with auth injected
+  try {
+    var r = await fetch(DIRECT,{method:'POST',headers:HDR,body:body});
+    if(r.ok){var d=await r.json();if(d.content&&d.content[0])return d.content[0].text;if(d.error)throw new Error(d.error.message);}
+    if(r.status===401||r.status===403){throw new Error('auth');}
+  } catch(e){if(e.message==='auth')throw new Error('API key required');}
+
+  // 2. Netlify/Vercel serverless function (set ANTHROPIC_API_KEY env var)
+  try {
+    var r2=await fetch('/api/ai',{method:'POST',headers:{'Content-Type':'application/json'},body:body});
+    if(r2.ok){var d2=await r2.json();if(d2.content&&d2.content[0])return d2.content[0].text;}
+  } catch(e){}
+  try {
+    var r2b=await fetch('/.netlify/functions/ai',{method:'POST',headers:{'Content-Type':'application/json'},body:body});
+    if(r2b.ok){var d2b=await r2b.json();if(d2b.content&&d2b.content[0])return d2b.content[0].text;}
+  } catch(e){}
+
+  // 3. corsproxy.io (may work if Anthropic does not block it)
+  try {
+    var r3=await fetch('https://corsproxy.io/?'+encodeURIComponent(DIRECT),{method:'POST',headers:HDR,body:body});
+    if(r3.ok){var d3=await r3.json();if(d3.content&&d3.content[0])return d3.content[0].text;}
+  } catch(e){}
+
+  // 4. Ask user for API key as last resort
+  if(!window._dcpeKey){
+    var k=prompt('Enter your Anthropic API key to enable AI features (sk-ant-...):');
+    if(k&&k.startsWith('sk-')){window._dcpeKey=k;}
+    else{throw new Error('AI features require an API key. Get one free at console.anthropic.com');}
+  }
+  try {
+    var r4=await fetch(DIRECT,{method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':window._dcpeKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:body});
+    if(r4.ok){var d4=await r4.json();if(d4.content&&d4.content[0])return d4.content[0].text;if(d4.error)throw new Error(d4.error.message);}
+    if(r4.status===401){window._dcpeKey=null;throw new Error('Invalid API key');}
+  } catch(e){throw new Error('AI error: '+e.message);}
+
+  throw new Error('All AI connection attempts failed.');
+}
+
+/* =======================================================
+   DCPE ADVANCED LIVE DEMO = Full AI-Powered MVP
+   All features powered by Claude Sonnet via Anthropic API
+======================================================= */
+
+/* == TAB SWITCHING == */
+function switchTab(tabId) {
+  document.querySelectorAll('.dtab').forEach(function(t){t.classList.remove('active');});
+  document.querySelectorAll('.demo-tab-panel').forEach(function(p){p.classList.remove('active');});
+  var panel = document.getElementById('tab-'+tabId);
+  if (panel) panel.classList.add('active');
+  var btns = document.querySelectorAll('.dtab');
+  btns.forEach(function(b){ var oc=b.getAttribute('onclick'); if(oc && oc.includes("'"+tabId+"'")) b.classList.add('active'); });
+  if (tabId==='command-center' || tabId==='order-monitor') { setTimeout(initDemoCharts,80); }
+}
+
+/* == ORDER DATA == */
+var ORDERS = [
+  {id:'#4821',items:'3x Large Pizza + 2 Colas + Garlic Bread',platform:'Uber Eats',dist:'4.2 km',dispatch:'18:42',weather:'== Rain',load:'Busy (24 orders)',risk:87,stage:'In Kitchen',details:'Large complex order during dinner peak with rain. High cold food risk.'},
+  {id:'#4822',items:'Curry Set + Naan + Raita + Mango Lassi',platform:'Deliveroo',dist:'2.1 km',dispatch:'18:44',weather:'== Rain',load:'Busy (24 orders)',risk:54,stage:'Packing',details:'Liquid items present significant spill risk. Needs sealed containers.'},
+  {id:'#4823',items:'Burger + Fries + Cola',platform:'Just Eat',dist:'1.3 km',dispatch:'18:46',weather:'== Rain',load:'Busy (24 orders)',risk:12,stage:'Dispatched',details:'Short distance simple order. Very low risk profile.'},
+  {id:'#4824',items:'6x Sushi Rolls + Miso Soup + Edamame',platform:'Uber Eats',dist:'5.8 km',dispatch:'18:41',weather:'== Rain',load:'Busy (24 orders)',risk:94,stage:'Preparing',details:'Critical: cold food risk 94%. Long distance sushi in rain. Needs immediate intervention.'},
+  {id:'#4825',items:'Pasta Carbonara + Garlic Bread',platform:'Deliveroo',dist:'1.8 km',dispatch:'18:48',weather:'== Rain',load:'Busy (24 orders)',risk:18,stage:'Packing',details:'Simple pasta order. Low risk. Standard packaging sufficient.'},
+  {id:'#4826',items:'Korean BBQ Set + Bibimbap + Kimchi',platform:'Just Eat',dist:'3.1 km',dispatch:'18:50',weather:'== Rain',load:'Busy (24 orders)',risk:63,stage:'In Kitchen',details:'Multi-component order with multiple sauce containers. Moderate risk.'},
+  {id:'#4827',items:'Fish & Chips x2 + Mushy Peas',platform:'Uber Eats',dist:'2.4 km',dispatch:'18:52',weather:'== Rain',load:'Busy (24 orders)',risk:29,stage:'Packing',details:'Classic order. Short distance. Verify chips packaging heat-sealed.'},
+  {id:'#4828',items:'Indian Thali Set + Poppadoms + 3 Dips',platform:'Deliveroo',dist:'4.8 km',dispatch:'18:53',weather:'== Rain',load:'Surge',risk:78,stage:'In Kitchen',details:'High complexity multi-dish order with fragile elements over long distance.'}
+];
+
+/* Render order table */
+function renderOrders() {
+  var tb = document.getElementById('order-tbody'); if(!tb) return;
+  tb.innerHTML = ORDERS.map(function(o){
+    var rb = o.risk>=85?'rb-cr':o.risk>=65?'rb-hi':o.risk>=40?'rb-md':'rb-lo';
+    var rl = o.risk>=85?'CRITICAL':o.risk>=65?'HIGH RISK':o.risk>=40?'MONITOR':o.risk>=20?'LOW RISK':'CLEAR';
+    var rc = o.risk>=65?'#ef4444':o.risk>=40?'#f59e0b':'#10b981';
+    return '<tr data-oid="'+o.id+'" onclick="analyseOrder(\''+o.id+'\')" style="cursor:pointer;">' +
+      '<td style="font-weight:700;color:#e2e8f0;">'+o.id+'</td>' +
+      '<td style="max-width:160px;font-size:10px;">'+o.items+'</td>' +
+      '<td><span style="font-size:9.5px;color:#94a3b8;">'+o.platform+'</span></td>' +
+      '<td>'+o.dist+'</td>' +
+      '<td style="color:#64748b;">'+o.dispatch+'</td>' +
+      '<td style="font-size:10px;">'+o.weather+'</td>' +
+      '<td style="font-size:9.5px;color:#64748b;">'+o.load+'</td>' +
+      '<td><div style="display:flex;align-items:center;gap:5px;"><span style="font-weight:700;color:'+rc+';">'+o.risk+'%</span><div class="sbar-mini"><div class="sbar-fill" style="width:'+o.risk+'%;background:'+rc+';"></div></div></div></td>' +
+      '<td><span class="rb '+rb+'">'+rl+'</span></td>' +
+      '<td style="color:#64748b;font-size:10px;">'+o.stage+'</td>' +
+      '<td><button class="db-secondary" style="font-size:9px;padding:4px 10px;" onclick="event.stopPropagation();analyseOrder(\''+o.id+'\')">Analyse =</button></td>' +
+    '</tr>';
+  }).join('');
+}
+renderOrders();
+
+/* == AI ORDER ANALYSIS == */
+async function analyseOrder(orderId) {
+  var order = ORDERS.find(function(o){return o.id===orderId;});
+  if(!order) return;
+  document.querySelectorAll('#order-tbody tr').forEach(function(r){r.classList.remove('sel');});
+  var row = document.querySelector('[data-oid="'+orderId+'"]');
+  if(row) row.classList.add('sel');
+  var box = document.getElementById('ai-order-box');
+  var content = document.getElementById('ai-order-content');
+  box.classList.remove('hidden');
+  document.getElementById('ai-order-hdr').textContent = 'AI Forensic Analysis = Order '+orderId+' (Risk: '+order.risk+'%)';
+  content.innerHTML = '<div class="ai-thinking"><span>DCPE AI performing forensic analysis on '+orderId+'...</span><div class="dots"><span></span><span></span><span></span></div></div>';
+  box.scrollIntoView({behavior:'smooth',block:'nearest'});
+  try {
+var text = await dcpeAI({
+      model:'claude-sonnet-4-20250514',max_tokens:1000,
+      system:'You are the DCPE Forensic Intelligence Engine = the AI risk analysis system for the Delivery Complaint Prevention Engine, a UK food delivery SaaS platform founded by Hardik Badhwar. Provide expert, specific, actionable analysis for kitchen staff and managers. Always use UK English. Format with clear labeled sections using **bold** for headings.',
+      messages:[{role:'user',content:'Forensic analysis for this live delivery order:\n\nOrder: '+orderId+'\nItems: '+order.items+'\nPlatform: '+order.platform+'\nDistance: '+order.dist+'\nDispatching at: '+order.dispatch+'\nWeather: '+order.weather+'\nKitchen Load: '+order.load+'\nRisk Score: '+order.risk+'%\nCurrent Stage: '+order.stage+'\n\nProvide:\n1. **Risk Score Breakdown** - explain what specifically drives the '+order.risk+'% score (3-4 factors)\n2. **Immediate Actions** - 3 specific things kitchen staff should do RIGHT NOW before dispatch\n3. **Packaging Recommendation** - exact packaging instruction for this specific order\n4. **Customer Communication** - should proactive message be sent? If yes, draft it (one sentence)\n5. **Estimated Refund Risk** - if no action taken vs if actions followed\n\nBe specific, practical, and concise. This is for a busy kitchen environment.'}]
+    });
+    content.innerHTML = formatAI(text);
+  } catch(e) {
+    content.innerHTML = '<span style="color:#ef4444;">AI error: '+e.message+'</span>';
+  }
+}
+
+/* == RISK SIMULATOR == */
+async function runSimulator() {
+  var btn = document.getElementById('sim-btn');
+  btn.disabled=true; btn.innerHTML='= Calculating...';
+  var box = document.getElementById('sim-ai-box');
+  var content = document.getElementById('sim-ai-content');
+  box.classList.remove('hidden');
+  content.innerHTML = '<div class="ai-thinking"><span>DCPE AI calculating risk score...</span><div class="dots"><span></span><span></span><span></span></div></div>';
+  document.getElementById('risk-breakdown').style.display='none';
+
+  var food = document.getElementById('sim-food').value;
+  var dist = document.getElementById('sim-dist').value;
+  var time = document.getElementById('sim-time').value;
+  var weather = document.getElementById('sim-weather').value;
+  var load = document.getElementById('sim-load').value;
+  var platform = document.getElementById('sim-platform').value;
+  var staff = document.getElementById('sim-staff').value;
+  var history = document.getElementById('sim-history').value;
+
+  try {
+var raw = await dcpeAI({
+      model:'claude-sonnet-4-20250514',max_tokens:1200,
+      system:'You are the DCPE AI Risk Scoring Engine. Return ONLY valid JSON with no markdown, no explanation, no code blocks. The JSON must contain: riskScore (integer 0-100), riskLevel (string: CRITICAL/HIGH/MEDIUM/LOW/CLEAR), factors (array of objects with "name" string and "score" integer 0-100 and "weight" string like "42%"), interventions (array of 4 specific string actions for kitchen staff), packagingAdvice (string), customerComms (string = one sentence proactive message to send or "Not required"), estimatedRefundIfIgnored (string like "=25-40"), estimatedRefundIfActioned (string like "=0-5"), confidence (string like "94%").',
+      messages:[{role:'user',content:'Score this UK food delivery order:\nFood: '+food+'\nDistance: '+dist+'\nTime: '+time+'\nWeather: '+weather+'\nKitchen Load: '+load+'\nPlatform: '+platform+'\nStaffing: '+staff+'\nRecent History: '+history}]
+    });
+    raw = raw.replace(/```json|```/g,'').trim();
+    var res = JSON.parse(raw);
+    var score = res.riskScore||50;
+
+    // Animate gauge
+    var circ = document.getElementById('gauge-circle');
+    var offset = 276.46*(1-score/100);
+    var color = score>=75?'#ef4444':score>=50?'#f59e0b':score>=25?'#06b6d4':'#10b981';
+    circ.style.strokeDashoffset=offset; circ.style.stroke=color;
+    document.getElementById('gauge-pct').textContent=score+'%';
+    document.getElementById('gauge-pct').style.color=color;
+    document.getElementById('gauge-risk').textContent=res.riskLevel||'';
+    document.getElementById('gauge-risk').style.color=color;
+
+    // Render factors
+    if(res.factors&&res.factors.length) {
+      var rb = document.getElementById('risk-breakdown');
+      rb.style.display='block';
+      document.getElementById('risk-factors-display').innerHTML = res.factors.map(function(f){
+        var fc = f.score>=70?'#ef4444':f.score>=45?'#f59e0b':'#10b981';
+        return '<div class="fp-factor"><div class="fp-factor-lbl">'+f.name+'</div><div class="fp-bar"><div class="fp-fill" style="width:'+f.score+'%;background:'+fc+';"></div></div><div class="fp-pct" style="color:'+fc+';">'+f.score+'%</div></div>';
+      }).join('');
+    }
+
+    // Build AI summary
+    var html = '<strong style="color:#e2e8f0;">Risk Score: '+score+'% = '+res.riskLevel+'</strong><br><br>';
+    if(res.interventions&&res.interventions.length){
+      html+='<span style="color:#10b981;font-weight:700;">Immediate Actions:</span><br>';
+      res.interventions.forEach(function(i,ix){html+='<strong style="color:#60a5fa;">'+(ix+1)+'.</strong> '+i+'<br>';});
+    }
+    if(res.packagingAdvice) html+='<br><span style="color:#f59e0b;font-weight:700;">= Packaging:</span> '+res.packagingAdvice+'<br>';
+    if(res.customerComms&&res.customerComms!=='Not required') html+='<br><span style="color:#a855f7;font-weight:700;">= Customer Comms:</span> "'+res.customerComms+'"<br>';
+    if(res.estimatedRefundIfIgnored) html+='<br><span style="color:#ef4444;font-weight:700;">== Refund Risk if Ignored:</span> '+res.estimatedRefundIfIgnored+'<br>';
+    if(res.estimatedRefundIfActioned) html+='<span style="color:#10b981;font-weight:700;">= Refund Risk if Actioned:</span> '+res.estimatedRefundIfActioned+'<br>';
+    if(res.confidence) html+='<br><span style="color:#64748b;font-size:9.5px;">Confidence: '+res.confidence+' | DCPE Fingerprinting Engine v2.4</span>';
+    content.innerHTML = html;
+  } catch(e) {
+    content.innerHTML = '<span style="color:#ef4444;">Error: '+e.message+'</span>';
+  }
+  btn.disabled=false; btn.innerHTML='= Generate AI Risk Score + Prevention Plan';
+}
+
+/* == FINGERPRINT ENGINE == */
+var FP_LIBRARY = [
+  {pattern:'Pizza + Rain + 4km+',risk:85,outcome:'Cold food = prevented by double bag'},
+  {pattern:'Sushi + Distance > 5km',risk:91,outcome:'Temp critical = hot pack mandatory'},
+  {pattern:'Curry Set + Liquid Items',risk:67,outcome:'Spill risk = sealed containers applied'},
+  {pattern:'Family Order (8+ items) + Peak Hour',risk:74,outcome:'Missing items risk = checklist applied'},
+  {pattern:'Friday 6-7PM + Any Complex Order',risk:70,outcome:'Peak surge = pre-stage bags protocol'},
+  {pattern:'Late Night + Long Distance',risk:62,outcome:'Driver fatigue risk = priority monitoring'},
+];
+function renderFPLibrary() {
+  var el = document.getElementById('fp-library'); if(!el) return;
+  el.innerHTML = FP_LIBRARY.map(function(fp){
+    var c = fp.risk>=80?'#ef4444':fp.risk>=65?'#f59e0b':'#10b981';
+    return '<div class="olm-card"><div class="olm-card-h"><div class="olm-pattern" style="font-size:10px;">'+fp.pattern+'</div><div class="olm-accuracy" style="color:'+c+';">'+fp.risk+'% risk</div></div><div class="olm-desc">Outcome: '+fp.outcome+'</div></div>';
+  }).join('');
+}
+renderFPLibrary();
+
+async function generateFingerprint() {
+  var btn = document.getElementById('fp-btn');
+  btn.disabled=true; btn.innerHTML='= Generating...';
+  var rest = document.getElementById('fp-rest').value;
+  var val = document.getElementById('fp-val').value;
+  var items = document.getElementById('fp-items').value;
+  var cat = document.getElementById('fp-cat').value;
+  var prep = document.getElementById('fp-prep').value;
+  var driver = document.getElementById('fp-driver').value;
+  var cust = document.getElementById('fp-cust').value;
+  var box = document.getElementById('fp-ai-box');
+  var content = document.getElementById('fp-ai-content');
+  var radar = document.getElementById('fp-radar-display');
+  box.classList.remove('hidden');
+  radar.style.display='none';
+  content.innerHTML = '<div class="ai-thinking"><span>DCPE Fingerprinting Engine encoding '+items+' signals...</span><div class="dots"><span></span><span></span><span></span></div></div>';
+
+  try {
+var raw = await dcpeAI({
+      model:'claude-sonnet-4-20250514',max_tokens:1200,
+      system:'You are the DCPE Complaint-Risk Fingerprinting Engine. Return ONLY valid JSON, no markdown. The JSON must contain: overallRisk (integer 0-100), riskProfile (string: CRITICAL/HIGH/MEDIUM/LOW/SAFE), signals (array of 6 objects each with "factor" string, "score" integer 0-100, "impact" string "High/Medium/Low"), fingerprint (string = a unique descriptive name for this risk pattern like "High-Value Liquid Order: Peak Evening Protocol"), recommendations (array of 4 specific strings), marginProtection (string like "Saves =15-35 per similar order"), historicalMatch (string = does this match any known failure pattern).',
+      messages:[{role:'user',content:'Generate complaint risk fingerprint for:\nRestaurant: '+rest+'\nOrder Value: '+val+'\nItem Count: '+items+'\nFood Category: '+cat+'\nPrep Time: '+prep+'\nDriver Rating: '+driver+'\nCustomer History: '+cust}]
+    });
+    raw = raw.replace(/```json|```/g,'').trim();
+    var res = JSON.parse(raw);
+    var score = res.overallRisk||50;
+
+    // Show radar bars
+    if(res.signals&&res.signals.length) {
+      radar.style.display='flex';
+      radar.innerHTML = res.signals.map(function(s){
+        var c = s.score>=70?'#ef4444':s.score>=45?'#f59e0b':'#10b981';
+        return '<div class="fp-factor"><div class="fp-factor-lbl">'+s.factor+'</div><div class="fp-bar"><div class="fp-fill" style="width:'+s.score+'%;background:'+c+';"></div></div><div class="fp-pct" style="color:'+c+';">'+s.score+'%</div></div>';
+      }).join('');
+    }
+
+    var html = '<strong style="color:#e2e8f0;">Fingerprint: "'+res.fingerprint+'"</strong><br>';
+    html += '<span style="font-size:9.5px;color:#64748b;">Overall Risk: '+score+'% = '+res.riskProfile+'</span><br><br>';
+    if(res.recommendations&&res.recommendations.length){
+      html += '<span style="color:#10b981;font-weight:700;">Recommendations:</span><br>';
+      res.recommendations.forEach(function(r,i){html+='<strong style="color:#60a5fa;">'+(i+1)+'.</strong> '+r+'<br>';});
+    }
+    if(res.marginProtection) html += '<br><span style="color:#a855f7;font-weight:700;">= Margin Protection:</span> '+res.marginProtection+'<br>';
+    if(res.historicalMatch) html += '<br><span style="color:#f59e0b;font-weight:700;">= Historical Match:</span> '+res.historicalMatch;
+    content.innerHTML = html;
+
+    // Add to library
+    FP_LIBRARY.unshift({pattern:res.fingerprint||rest+' order',risk:score,outcome:res.recommendations?res.recommendations[0]:'Prevention applied'});
+    renderFPLibrary();
+  } catch(e) { content.innerHTML = '<span style="color:#ef4444;">Error: '+e.message+'</span>'; }
+  btn.disabled=false; btn.innerHTML='= Generate Risk Fingerprint';
+}
+
+/* == FORENSICS LAB == */
+async function runForensics() {
+  var btn = document.getElementById('flab-btn');
+  btn.disabled=true; btn.innerHTML='= Analysing...';
+  var type = document.getElementById('flab-type').value;
+  var platform = document.getElementById('flab-platform').value;
+  var dispatch = document.getElementById('flab-dispatch').value;
+  var pickup = document.getElementById('flab-pickup').value;
+  var delivery = document.getElementById('flab-delivery').value;
+  var notes = document.getElementById('flab-notes').value;
+  var context = document.getElementById('flab-context').value;
+  var box = document.getElementById('flab-ai-box');
+  var content = document.getElementById('flab-ai-content');
+  document.getElementById('flab-empty').style.display='none';
+  box.classList.remove('hidden');
+  document.getElementById('attribution-gauge').style.display='block';
+  document.getElementById('attr-kitchen').textContent='?%';
+  document.getElementById('attr-driver').textContent='?%';
+  document.getElementById('attr-platform').textContent='?%';
+  content.innerHTML = '<div class="ai-thinking"><span>DCPE CFFE analysing attribution forensics...</span><div class="dots"><span></span><span></span><span></span></div></div>';
+
+  try {
+var raw = await dcpeAI({
+      model:'claude-sonnet-4-20250514',max_tokens:1200,
+      system:'You are the DCPE Failure Attribution Forensics Engine (CFFE). Return ONLY valid JSON, no markdown. The JSON must contain: kitchenFaultPct (integer 0-100), driverFaultPct (integer 0-100), platformFaultPct (integer 0-100) = these 3 must sum to 100. verdict (string: "Restaurant liable"/"Driver/Transit liable"/"Platform liable"/"Shared liability"), confidence (string like "91%"), evidence (array of 4 specific strings detailing forensic evidence points), counterArgument (string = the argument to submit to the platform), disputeRecommendation (string: "Contest immediately"/"Accept liability"/"Negotiate partial refund"), estimatedRecovery (string like "Full =52 recovery likely" or "50% recovery expected").',
+      messages:[{role:'user',content:'Forensic attribution analysis:\nComplaint: '+type+'\nPlatform: '+platform+'\nDispatch Time: '+dispatch+'\nDriver Pickup Time: '+pickup+'\nDelivery Completion: '+delivery+'\nKitchen Log Notes: '+notes+'\nFull Context: '+context+'\n\nCalculate precise attribution percentages and generate full forensic report.'}]
+    });
+    raw = raw.replace(/```json|```/g,'').trim();
+    var res = JSON.parse(raw);
+
+    document.getElementById('attr-kitchen').textContent=(res.kitchenFaultPct||0)+'%';
+    document.getElementById('attr-driver').textContent=(res.driverFaultPct||0)+'%';
+    document.getElementById('attr-platform').textContent=(res.platformFaultPct||0)+'%';
+    var vd = document.getElementById('attr-verdict');
+    var vc = res.verdict&&res.verdict.includes('Driver')?'rgba(16,185,129,0.1)':res.verdict&&res.verdict.includes('Restaurant')?'rgba(239,68,68,0.1)':'rgba(245,158,11,0.1)';
+    var vtc = res.verdict&&res.verdict.includes('Driver')?'#10b981':res.verdict&&res.verdict.includes('Restaurant')?'#ef4444':'#f59e0b';
+    vd.style.background=vc; vd.style.color=vtc; vd.style.border='1px solid '+vtc.replace(')',',0.25)').replace('rgb','rgba');
+    vd.textContent=res.verdict+' = '+res.disputeRecommendation;
+
+    var html = '<strong style="color:#e2e8f0;">Verdict: '+res.verdict+'</strong> ('+res.confidence+' confidence)<br><br>';
+    if(res.evidence&&res.evidence.length){
+      html+='<span style="color:#34d399;font-weight:700;">Forensic Evidence Points:</span><br>';
+      res.evidence.forEach(function(e,i){html+='<strong style="color:#10b981;">'+(i+1)+'.</strong> '+e+'<br>';});
+    }
+    if(res.counterArgument) html+='<br><span style="color:#60a5fa;font-weight:700;">Counter-Argument to Submit:</span><br>"'+res.counterArgument+'"<br>';
+    if(res.estimatedRecovery) html+='<br><span style="color:#a855f7;font-weight:700;">= Recovery Estimate:</span> '+res.estimatedRecovery;
+    content.innerHTML = html;
+  } catch(e) { content.innerHTML = '<span style="color:#ef4444;">Error: '+e.message+'</span>'; }
+  btn.disabled=false; btn.innerHTML='= Run Full Attribution Forensics';
+}
+
+function loadForensicsTemplate(type) {
+  var templates = {
+    cold:{type:'Cold food on arrival',notes:'All items temp-checked at 74=C dispatch. Double thermal bag used.',context:'Food dispatched at correct temperature. Driver took 22 minutes to pick up.'},
+    missing:{type:'Missing items from order',notes:'All items individually verified and ticked off packing checklist.',context:'Kitchen supervisor signed off all items. Photo evidence captured at packing.'},
+    late:{type:'Food arrived late (>45 min)',notes:'Order dispatched within 18 mins of placement. On-time from restaurant.',context:'Driver allocated 24 mins after dispatch. Driver GPS shows 3 unnecessary route deviations.'},
+    damaged:{type:'Damaged / spilled packaging',notes:'Sealed spill-proof containers used. Double-bagged with tape.',context:'Packaging was intact at handover to driver (photographic evidence). Damage occurred during transit.'}
+  };
+  var t = templates[type]; if(!t) return;
+  document.getElementById('flab-type').value = t.type;
+  document.getElementById('flab-notes').value = t.notes;
+  document.getElementById('flab-context').value = t.context;
+}
+
+/* == DISPUTE CENTER == */
+async function generateDispute() {
+  var btn = document.getElementById('disp-btn');
+  btn.disabled=true; btn.innerHTML='== Generating Bundle...';
+  var type = document.getElementById('disp-type').value;
+  var value = document.getElementById('disp-value').value;
+  var dispatch = document.getElementById('disp-dispatch').value;
+  var pickup = document.getElementById('disp-pickup').value;
+  var delivery = document.getElementById('disp-delivery').value;
+  var platform = document.getElementById('disp-platform').value;
+  var evidence = document.getElementById('disp-evidence').value;
+  var result = document.getElementById('disp-result');
+  var content = document.getElementById('disp-content');
+  document.getElementById('disp-empty-msg').style.display='none';
+  result.classList.remove('hidden');
+  content.innerHTML = '<div class="ai-thinking"><span>DCPE AI compiling forensic evidence bundle...</span><div class="dots"><span></span><span></span><span></span></div></div>';
+
+  try {
+var text = await dcpeAI({
+      model:'claude-sonnet-4-20250514',max_tokens:1200,
+      system:'You are the DCPE Automated Dispute Evidence Generator. Create professional, authoritative dispute evidence bundles for UK restaurant operators to challenge invalid aggregator refunds on Deliveroo, Uber Eats, or Just Eat. Write in formal UK English. Structure clearly with bold headings.',
+      messages:[{role:'user',content:'Generate a complete dispute evidence bundle:\n\nRefund Claim: '+type+'\nOrder Value: '+value+'\nPlatform: '+platform+'\nDispatch Time: '+dispatch+'\nDriver Pickup: '+pickup+'\nDelivery Completion: '+delivery+'\nKitchen Evidence: '+evidence+'\n\nInclude:\n1. **Executive Summary** = one paragraph stating why refund is invalid\n2. **Timeline Evidence** = specific timestamps proving restaurant compliance\n3. **Kitchen Compliance Statement** = what DCPE logged\n4. **Attribution Analysis** = whose fault was it?\n5. **Platform Submission Statement** = exact text to paste into '+platform+' dispute form\n6. **Escalation Path** = what to do if initial dispute rejected\n7. **Expected Outcome** = probability of success and amount to recover\n\nMake it authoritative, professional, and persuasive.'}]
+    });
+    content.innerHTML = formatAI(text);
+  } catch(e) { content.innerHTML = '<span style="color:#ef4444;">Error: '+e.message+'</span>'; }
+  btn.disabled=false; btn.innerHTML='== Generate Full Dispute Evidence Bundle';
+}
+
+/* == OLM QUERY == */
+async function queryOLM() {
+  var btn = document.getElementById('olm-btn');
+  btn.disabled=true; btn.innerHTML='= Querying OLM...';
+  var query = document.getElementById('olm-query').value.trim();
+  if(!query){btn.disabled=false;btn.innerHTML='= Query OLM Intelligence';return;}
+  var box = document.getElementById('olm-result');
+  var content = document.getElementById('olm-content');
+  box.classList.remove('hidden');
+  content.innerHTML = '<div class="ai-thinking"><span>Searching 2,847 learned patterns...</span><div class="dots"><span></span><span></span><span></span></div></div>';
+
+  try {
+var text = await dcpeAI({
+      model:'claude-sonnet-4-20250514',max_tokens:1000,
+      system:'You are the DCPE Outcome Learning Memory (OLM) intelligence system. You have access to 2,847 learned patterns from 2.1 million UK food delivery orders across 142 restaurant partners in the Community Quality Network (CQN). Answer queries about learned patterns, prediction accuracy, intervention effectiveness, and operational intelligence. Always reference specific statistics and pattern data. UK English only.',
+      messages:[{role:'user',content:'OLM Database Query: '+query+'\n\nProvide: most relevant learned patterns, success rates, specific statistics from the CQN dataset, and actionable recommendations based on what the OLM has learned.'}]
+    });
+    content.innerHTML = formatAI(text);
+  } catch(e) { content.innerHTML = '<span style="color:#ef4444;">Error: '+e.message+'</span>'; }
+  btn.disabled=false; btn.innerHTML='= Query OLM Intelligence';
+}
+
+/* == CHAT == */
+var chatHistory = [];
+var SYSTEM_PROMPT = 'You are DCPE AI, the Operations Advisor for the Delivery Complaint Prevention Engine = an award-winning AI-powered SaaS platform for UK independent food delivery operators, founded by Hardik Badhwar (former Store Manager with 8+ years UK food service experience). You have expert knowledge of: the DCPE platform (Complaint-Risk Fingerprinting, Pre-Dispatch Prevention Engine, Failure Attribution Forensics Engine/CFFE, Operational Intervention Auto-Synthesis, Outcome Learning Memory/OLM, Community Quality Network/CQN, Manager Command Center), UK food delivery platforms (Deliveroo, Uber Eats, Just Eat), aggregator dispute processes, kitchen operations, packaging best practices, UK consumer protection law, UK GDPR compliance, the UK hospitality market (=14.3B, 176,000+ SME restaurants), pricing (Prevention Core =90/mo, Risk Architect =350/mo, Sovereign Quality =200/mo per site), financial projections (=87K Year 1, =399K Year 2, =811K Year 3), and pilot results (28% complaint reduction, 18% refund recovery across 5 UK locations). Current context: 247 active orders, 18 alerts, 94.3% prevention rate, =1,240 saved today. Be helpful, practical, specific, and concise. Use UK English. Reference specific platform features when relevant.';
+
+async function sendChat() {
+  var inp = document.getElementById('chat-inp');
+  var msg = inp.value.trim(); if(!msg) return;
+  inp.value='';
+  appendMsg(msg,'user');
+  chatHistory.push({role:'user',content:msg});
+  var btn = document.getElementById('chat-send-btn');
+  btn.disabled=true;
+  var thinkEl = document.createElement('div');
+  thinkEl.className='msg bot';
+  thinkEl.innerHTML='<div class="msg-from">DCPE AI ADVISOR</div><div class="ai-thinking"><div class="dots"><span></span><span></span><span></span></div></div>';
+  var msgs = document.getElementById('chat-msgs');
+  msgs.appendChild(thinkEl); scrollChat();
+
+  try {
+var text = await dcpeAI({
+      model:'claude-sonnet-4-20250514',max_tokens:1000,
+      system:SYSTEM_PROMPT,
+      messages:chatHistory
+    });
+    chatHistory.push({role:'assistant',content:text});
+    thinkEl.innerHTML='<div class="msg-from">DCPE AI ADVISOR</div>'+formatAI(text);
+  } catch(e) {
+    thinkEl.innerHTML='<div class="msg-from">DCPE AI ADVISOR</div><span style="color:#ef4444;">Connection error. Please try again.</span>';
+  }
+  btn.disabled=false; scrollChat();
+}
+
+function sendQuick(el) { document.getElementById('chat-inp').value=el.textContent; sendChat(); }
+function appendMsg(text,role){
+  var d=document.createElement('div'); d.className='msg '+role;
+  d.innerHTML=(role==='bot'?'<div class="msg-from">DCPE AI ADVISOR</div>':'')+text;
+  document.getElementById('chat-msgs').appendChild(d); scrollChat();
+}
+function scrollChat(){ var c=document.getElementById('chat-msgs'); if(c) c.scrollTop=c.scrollHeight; }
+
+/* == INTEGRATION ADVICE == */
+async function getIntegrationAdvice() {
+  var btn = document.getElementById('int-btn');
+  btn.disabled=true; btn.innerHTML='= Generating Roadmap...';
+  var pos = document.getElementById('int-pos').value;
+  var platforms = document.getElementById('int-platforms').value;
+  var biz = document.getElementById('int-biz').value;
+  var vol = document.getElementById('int-vol').value;
+  var box = document.getElementById('int-result');
+  var content = document.getElementById('int-content');
+  box.classList.remove('hidden');
+  content.innerHTML = '<div class="ai-thinking"><span>DCPE AI building your integration roadmap...</span><div class="dots"><span></span><span></span><span></span></div></div>';
+
+  try {
+var text = await dcpeAI({
+      model:'claude-sonnet-4-20250514',max_tokens:800,
+      system:'You are a DCPE Integration Specialist. Provide specific, technical integration roadmaps for restaurants wanting to connect the Delivery Complaint Prevention Engine to their existing tech stack. Be specific about connection methods (API, webhook, direct integration), timeline, and expected ROI. UK English.',
+      messages:[{role:'user',content:'Integration roadmap for:\nPOS: '+pos+'\nDelivery Platforms: '+platforms+'\nBusiness Type: '+biz+'\nOrder Volume: '+vol+'\n\nProvide: Week 1 setup steps, API connections needed, expected data flows, estimated setup time, quick wins, and projected ROI uplift within 30 days.'}]
+    });
+    content.innerHTML = formatAI(text);
+  } catch(e) { content.innerHTML = '<span style="color:#ef4444;">Error: '+e.message+'</span>'; }
+  btn.disabled=false; btn.innerHTML='= Get AI Integration Recommendations';
+}
+
+/* == ALERT SYSTEM == */
+var alertCount = 3;
+function resolveAlert(btn, saved) {
+  var item = btn.closest('.alert-item');
+  btn.textContent='= Done'; btn.classList.add('done'); btn.disabled=true;
+  item.classList.remove('cr','hi','md'); item.classList.add('ok');
+  alertCount = Math.max(0,alertCount-1);
+  document.getElementById('alert-badge').textContent=alertCount+' ACTIVE';
+  document.getElementById('alert-badge-top').textContent=alertCount+' ALERTS';
+  var sv = parseInt(document.getElementById('savings-display').textContent.replace(/[^0-9]/g,''));
+  var newSv = sv+(saved||15);
+  document.getElementById('savings-display').textContent='='+newSv.toLocaleString();
+  document.getElementById('ctx-saved').textContent='='+newSv.toLocaleString();
+  var sca = parseInt(document.getElementById('sc-actions').textContent)+1;
+  document.getElementById('sc-actions').textContent=sca;
+}
+
+function logIntervention(btn, type) {
+  var item = btn.closest('.alert-item');
+  btn.textContent='= Logged'; btn.disabled=true;
+  item.style.opacity='0.6';
+}
+
+/* == CHECKLIST == */
+function toggleCheck(el) {
+  var box = el.querySelector('div'); var txt = el.querySelector('span');
+  var done = box.textContent==='=';
+  box.textContent=done?'':'=';
+  box.style.background=done?'':'rgba(16,185,129,0.2)';
+  box.style.borderColor=done?'rgba(255,255,255,0.2)':'#10b981';
+  box.style.color='#10b981';
+  txt.style.color=done?'#cbd5e1':'#64748b';
+  if(done) txt.style.textDecoration='';
+  else txt.style.textDecoration='line-through';
+}
+function markAllChecked() { document.querySelectorAll('#checklist-items > div').forEach(function(el){var b=el.querySelector('div');var t=el.querySelector('span');b.textContent='=';b.style.background='rgba(16,185,129,0.2)';b.style.borderColor='#10b981';b.style.color='#10b981';t.style.color='#64748b';t.style.textDecoration='line-through';}); }
+function resetChecklist() { document.querySelectorAll('#checklist-items > div').forEach(function(el){var b=el.querySelector('div');var t=el.querySelector('span');b.textContent='';b.style.background='';b.style.borderColor='rgba(255,255,255,0.2)';b.style.color='';t.style.color='#cbd5e1';t.style.textDecoration='';}); }
+
+/* == TEXT FORMATTER == */
+function formatAI(text) {
+  return text
+    .replace(/\*\*(.+?)\*\*/g,'<strong style="color:#e2e8f0;">$1</strong>')
+    .replace(/\n\n/g,'<br><br>')
+    .replace(/\n/g,'<br>')
+    .replace(/^(\d+\.\s)/gm,'<span style="color:#60a5fa;font-weight:700;">$1</span>');
+}
+
+/* == HEATMAP == */
+(function buildHeatmap(){
+  var el = document.getElementById('week-heatmap'); if(!el) return;
+  var labels=['Morning','Lunch','Evening','Late Night'];
+  var data=[[0,1,0,1,2,3,1],[2,3,2,2,3,3,2],[1,2,2,3,4,4,3],[0,0,1,1,2,2,1]];
+  labels.forEach(function(lbl,ri){
+    var l=document.createElement('div'); l.className='hm-band-label'; l.textContent=lbl;
+    el.appendChild(l);
+    var row=document.createElement('div'); row.className='hm-row';
+    data[ri].forEach(function(v){var c=document.createElement('div');c.className='hm-cell hm-'+v;c.title=lbl+': '+(v===0?'Minimal':v===1?'Low':v===2?'Medium':v===3?'High':'Peak Risk');row.appendChild(c);});
+    el.appendChild(row);
+  });
+})();
+
+/* == LIVE TICKER == */
+var TICKS=[
+  {c:'ok',m:'<strong class="tick-ok">= Order #4823</strong> delivered = customer rated ====='},
+  {c:'cr',m:'<strong class="tick-cr">= Risk Alert</strong> Order #4826 = Korean BBQ sauce spill risk detected, intervention triggered'},
+  {c:'ok',m:'<strong class="tick-ok">= Dispute Won</strong> #REF-441 = =47 recovered from Uber Eats'},
+  {c:'hi',m:'<strong class="tick-hi">== Peak Warning</strong> Volume +24% vs last Friday = additional packer needed at 6PM'},
+  {c:'ok',m:'<strong class="tick-ok">= Checklist Complete</strong> Order #4827 = all 7 items verified, dispatched on time'},
+  {c:'cr',m:'<strong class="tick-cr">= CRITICAL</strong> Order #4824 sushi 5.8km rain = double insulation applied ='},
+  {c:'ok',m:'<strong class="tick-ok">= OLM Updated</strong> New pattern encoded: curry liquid risk +spill-proof bag = 97% prevention'},
+  {c:'ok',m:'<strong class="tick-ok">= =182 saved</strong> in refunds this past hour across 4 interventions'},
+  {c:'hi',m:'<strong class="tick-hi">= CQN Sync</strong> 14 new patterns received from Community Quality Network'},
+  {c:'ok',m:'<strong class="tick-ok">= Order #4825</strong> dispatched = pasta carbonara, 1.8km, low risk, no intervention needed'},
+];
+var tickIdx=0;
+function addTick(){
+  var ticker=document.getElementById('live-ticker'); if(!ticker) return;
+  var m=TICKS[tickIdx%TICKS.length]; tickIdx++;
+  var d=document.createElement('div'); d.className='ticker-row';
+  d.innerHTML='<span class="tick-time">'+new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'})+'</span><span>'+m.m+'</span>';
+  ticker.insertBefore(d,ticker.firstChild);
+  while(ticker.children.length>5) ticker.removeChild(ticker.lastChild);
+}
+addTick();addTick();addTick();
+setInterval(addTick,4000);
+
+/* == LIVE KPI UPDATES == */
+setInterval(function(){
+  var o=document.getElementById('kpi-total-orders'); if(o){var v=parseInt(o.textContent);o.textContent=v+Math.floor(Math.random()*3-1);}
+  var s=document.getElementById('savings-display'); if(s){var sv=parseInt(s.textContent.replace(/[^0-9]/g,''));document.getElementById('savings-display').textContent='='+(sv+Math.floor(Math.random()*8+1)).toLocaleString();}
+}, 6000);
+
+/* == CHARTS (init when tab visible) == */
+var demoChartsInit=false;
+function initDemoCharts(){
+  if(demoChartsInit) return; demoChartsInit=true;
+  var C2={b:'#1a6ef5',e:'#00d4ff',p:'#7c3aed',p2:'#a855f7',g:'#10b981',o:'#f59e0b',r:'#ef4444'};
+  function mkC(id,cfg){var el=document.getElementById(id);if(!el)return null;var c=new Chart(el.getContext('2d'),cfg);return c;}
+  var CD2={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#475569',font:{size:8}}},y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#475569',font:{size:8}}}}};
+  // Risk live feed
+  var ld=Array.from({length:20},function(){return Math.floor(Math.random()*75+10);});
+  var lc=mkC('demoChart1',{type:'line',data:{labels:ld.map(function(_,i){return(i+1)+'m';}),datasets:[{label:'Risk Score',data:ld,borderColor:C2.e,backgroundColor:'rgba(0,212,255,0.06)',fill:true,tension:.4,pointRadius:0,borderWidth:2}]},options:CD2});
+  if(lc) setInterval(function(){lc.data.datasets[0].data.push(Math.floor(Math.random()*75+10));lc.data.datasets[0].data.shift();lc.data.labels.push((parseInt(lc.data.labels[lc.data.labels.length-1])+1)+'m');lc.data.labels.shift();lc.update('none');},2000);
+  // Prevention doughnut
+  mkC('demoChart2',{type:'doughnut',data:{labels:['Prevented','At Risk','Missed'],datasets:[{data:[94.3,4.0,1.7],backgroundColor:[C2.g,C2.o,C2.r],borderWidth:0,hoverOffset:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#475569',font:{size:8},boxWidth:8,padding:6}}},cutout:'65%'}});
+  // ROI mini bar
+  mkC('roiMiniChart',{type:'bar',data:{labels:['Wk1','Wk2','Wk3','Wk4','Wk5','Wk6','Wk7','Wk8'],datasets:[{label:'Saved',data:[120,280,420,580,720,850,980,1240],backgroundColor:'rgba(16,185,129,0.6)',borderRadius:4,borderSkipped:false},{label:'Cost',data:[99,99,99,99,99,99,99,99],backgroundColor:'rgba(26,110,245,0.4)',borderRadius:4,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#475569',font:{size:7.5},boxWidth:8,padding:4}}},scales:{x:{grid:{color:'rgba(255,255,255,0.03)'},ticks:{color:'#475569',font:{size:7.5}}},y:{grid:{color:'rgba(255,255,255,0.03)'},ticks:{color:'#475569',font:{size:7.5},callback:function(v){return'='+v;}}}}}});
+}
+// Auto-init charts when demo page loads (command center tab shown first)
+setTimeout(initDemoCharts, 200);
+</script>
 </div>
 <script>
 function showPage(id) {
@@ -1879,7 +3623,7 @@ function mkChart(id, cfg) {
 }
 
 function initCharts() {
-  /* ── HOME CHARTS ── */
+  /* == HOME CHARTS == */
   if (!ci.h1 && document.getElementById('homeChart1')) { ci.h1=1;
     mkChart('homeChart1', {type:'line',data:{labels:['Wk1','Wk2','Wk3','Wk4','Wk5','Wk6','Wk7','Wk8'],datasets:[{label:'Complaints',data:[45,42,38,35,28,22,18,12],borderColor:C.r,backgroundColor:'rgba(239,68,68,0.1)',fill:true,tension:.4,pointRadius:3,pointBackgroundColor:C.r},{label:'Prevented',data:[5,10,18,24,30,38,42,48],borderColor:C.g,backgroundColor:'rgba(16,185,129,0.08)',fill:true,tension:.4,pointRadius:3,pointBackgroundColor:C.g}]},options:CD});
   }
@@ -1887,7 +3631,7 @@ function initCharts() {
     mkChart('homeChart2', {type:'doughnut',data:{labels:['Low Risk','Medium','High Risk','Critical'],datasets:[{data:[58,24,12,6],backgroundColor:[C.g,C.o,C.r,'#dc2626'],borderWidth:2,borderColor:'#fff',hoverOffset:6}]},options:{...CDnoscale,cutout:'68%',plugins:{legend:{position:'bottom',labels:{color:'#475569',font:{size:8.5},boxWidth:10,padding:6}}}}});
   }
 
-  /* ── PROBLEM/ABOUT CHARTS ── */
+  /* == PROBLEM/ABOUT CHARTS == */
   if (!ci.cc && document.getElementById('complaintChart')) { ci.cc=1;
     mkChart('complaintChart', {type:'bar',data:{labels:['Cold Food','Missing Item','Spilled','Late','Wrong Item'],datasets:[{data:[38,27,18,12,8],backgroundColor:[C.r,'rgba(239,68,68,0.75)',C.o,'rgba(245,158,11,0.7)',C.b],borderRadius:5}]},options:{...CD,plugins:{legend:{display:false}}}});
   }
@@ -1898,24 +3642,24 @@ function initCharts() {
     mkChart('platformChart', {type:'radar',data:{labels:['Risk Prediction','Prevention','Forensics','Analytics','Learning','Integration'],datasets:[{label:'DCPE',data:[95,92,88,90,87,85],borderColor:C.b,backgroundColor:'rgba(26,110,245,0.15)',pointBackgroundColor:C.e,pointRadius:4},{label:'Competitors',data:[30,20,15,45,25,50],borderColor:C.r,backgroundColor:'rgba(239,68,68,0.08)',pointRadius:3}]},options:{...CDnoscale,scales:{r:{grid:{color:'rgba(0,0,0,0.07)'},ticks:{color:'#94a3b8',font:{size:8},backdropColor:'transparent'},pointLabels:{color:'#475569',font:{size:9.5}}}}}});
   }
 
-  /* ── FINGERPRINT CHARTS ── */
+  /* == FINGERPRINT CHARTS == */
   if (!ci.rs && document.getElementById('riskScoreChart')) { ci.rs=1;
     var rsData = [22,45,38,72,55,28,85,91,44,33,67,78,52,30,88,73,41,55,69,37];
     var rsC = mkChart('riskScoreChart', {type:'line',data:{labels:rsData.map((_,i)=>'#'+(i+1)),datasets:[{label:'Risk %',data:rsData,borderColor:C.e,backgroundColor:'rgba(0,212,255,0.1)',fill:true,tension:.4,pointRadius:2,borderWidth:2}]},options:{...CD,animation:{duration:300},plugins:{legend:{display:false}}}});
     setInterval(function(){rsC.data.datasets[0].data.push(Math.floor(Math.random()*75+10));rsC.data.datasets[0].data.shift();rsC.update('none');},2000);
   }
 
-  /* ── FORENSICS PIE ── */
+  /* == FORENSICS PIE == */
   if (!ci.fo && document.getElementById('forensicsChart')) { ci.fo=1;
     mkChart('forensicsChart', {type:'pie',data:{labels:['Kitchen Error (33%)','Driver Delay (40%)','Packaging (15%)','Weather (8%)','Platform (4%)'],datasets:[{data:[33,40,15,8,4],backgroundColor:[C.o,C.r,C.p2,C.t,C.b],borderWidth:3,borderColor:'#f8fafc',hoverOffset:8}]},options:{...CDnoscale,plugins:{legend:{position:'bottom',labels:{color:'#475569',font:{size:8},boxWidth:10,padding:5}}}}});
   }
 
-  /* ── OUTCOMES LINE ── */
+  /* == OUTCOMES LINE == */
   if (!ci.oc && document.getElementById('outcomeChart')) { ci.oc=1;
     mkChart('outcomeChart', {type:'line',data:{labels:['Wk1','Wk4','Wk8','Wk12','Wk16','Wk20','Wk24'],datasets:[{label:'Prediction Accuracy',data:[71,76,81,85,88,92,94],borderColor:C.e,backgroundColor:'rgba(0,212,255,0.08)',fill:true,tension:.4,pointRadius:4,pointBackgroundColor:C.e},{label:'Prevention Rate',data:[65,72,78,83,87,91,94],borderColor:C.g,backgroundColor:'rgba(16,185,129,0.05)',fill:true,tension:.4,pointRadius:4,pointBackgroundColor:C.g}]},options:CD});
   }
 
-  /* ── COMMAND CENTER ── */
+  /* == COMMAND CENTER == */
   if (!ci.cm && document.getElementById('commandChart')) { ci.cm=1;
     mkChart('commandChart', {type:'bar',data:{labels:['6am','8am','10am','12pm','2pm','4pm','6pm','8pm','10pm'],datasets:[{label:'Orders',data:[12,28,45,78,62,55,89,97,64],backgroundColor:'rgba(26,110,245,0.55)',borderRadius:4,borderSkipped:false},{label:'Risk Alerts',data:[1,3,5,12,8,7,18,22,11],backgroundColor:'rgba(239,68,68,0.55)',borderRadius:4,borderSkipped:false}]},options:CD});
   }
@@ -1926,26 +3670,26 @@ function initCharts() {
     mkChart('refundChart', {type:'bar',data:{labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],datasets:[{label:'Requested',data:[12,9,11,14,22,28,24],backgroundColor:'rgba(239,68,68,0.45)',borderRadius:3},{label:'Prevented',data:[10,8,9,12,19,24,21],backgroundColor:'rgba(16,185,129,0.55)',borderRadius:3}]},options:CD});
   }
 
-  /* ══════════════════════════════════════════════
-     ANALYTICS PAGE — ALL NEW RICH CHARTS
-  ══════════════════════════════════════════════ */
+  /* ==============================================
+     ANALYTICS PAGE = ALL NEW RICH CHARTS
+  ============================================== */
 
-  /* COMPLAINT TREND — Line with gradient fill */
+  /* COMPLAINT TREND = Line with gradient fill */
   if (!ci.ct && document.getElementById('complaintTrend')) { ci.ct=1;
     mkChart('complaintTrend', {type:'line',data:{labels:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],datasets:[{label:'Monthly Complaints',data:[48,44,40,36,30,25,20,16,14,11,9,8],borderColor:C.r,backgroundColor:'rgba(239,68,68,0.08)',fill:true,tension:.45,pointRadius:4,pointBackgroundColor:C.r,pointBorderColor:'#fff',pointBorderWidth:2,borderWidth:2.5},{label:'Prevention Target',data:[48,43,38,32,27,22,17,13,10,8,7,6],borderColor:C.g,borderDash:[6,3],tension:.4,pointRadius:0,borderWidth:1.5,fill:false}]},options:CD});
   }
 
-  /* REFUND TREND — Line with area */
+  /* REFUND TREND = Line with area */
   if (!ci.rt && document.getElementById('refundTrend')) { ci.rt=1;
-    mkChart('refundTrend', {type:'line',data:{labels:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],datasets:[{label:'Refunds (£)',data:[2400,2200,2000,1750,1500,1200,950,780,620,490,380,280],borderColor:C.g,backgroundColor:'rgba(16,185,129,0.1)',fill:true,tension:.45,pointRadius:4,pointBackgroundColor:C.g,pointBorderColor:'#fff',pointBorderWidth:2,borderWidth:2.5},{label:'Savings Cumulative (£)',data:[0,200,400,650,900,1200,1450,1620,1780,1910,2020,2120],borderColor:C.b,tension:.4,pointRadius:3,pointBackgroundColor:C.b,fill:false,borderWidth:2}]},options:CD});
+    mkChart('refundTrend', {type:'line',data:{labels:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],datasets:[{label:'Refunds (=)',data:[2400,2200,2000,1750,1500,1200,950,780,620,490,380,280],borderColor:C.g,backgroundColor:'rgba(16,185,129,0.1)',fill:true,tension:.45,pointRadius:4,pointBackgroundColor:C.g,pointBorderColor:'#fff',pointBorderWidth:2,borderWidth:2.5},{label:'Savings Cumulative (=)',data:[0,200,400,650,900,1200,1450,1620,1780,1910,2020,2120],borderColor:C.b,tension:.4,pointRadius:3,pointBackgroundColor:C.b,fill:false,borderWidth:2}]},options:CD});
   }
 
-  /* AREA CHART — Cumulative Revenue 3 years monthly */
+  /* AREA CHART = Cumulative Revenue 3 years monthly */
   if (!ci.ar && document.getElementById('areaRevChart')) { ci.ar=1;
-    mkChart('areaRevChart', {type:'line',data:{labels:['M1','M2','M3','M4','M5','M6','M7','M8','M9','M10','M11','M12','Y2Q1','Y2Q2','Y2Q3','Y2Q4','Y3Q1','Y3Q2','Y3Q3','Y3Q4'],datasets:[{label:'Cumulative Revenue (£)',data:[3000,5500,8800,12900,18500,25000,33000,43500,55000,67500,77000,87435,175000,250000,325000,399315,520000,630000,720000,811290],borderColor:C.b,backgroundColor:'rgba(26,110,245,0.12)',fill:true,tension:.4,pointRadius:2,borderWidth:2.5}]},options:{...CD,plugins:{legend:{display:false}}}});
+    mkChart('areaRevChart', {type:'line',data:{labels:['M1','M2','M3','M4','M5','M6','M7','M8','M9','M10','M11','M12','Y2Q1','Y2Q2','Y2Q3','Y2Q4','Y3Q1','Y3Q2','Y3Q3','Y3Q4'],datasets:[{label:'Cumulative Revenue (=)',data:[3000,5500,8800,12900,18500,25000,33000,43500,55000,67500,77000,87435,175000,250000,325000,399315,520000,630000,720000,811290],borderColor:C.b,backgroundColor:'rgba(26,110,245,0.12)',fill:true,tension:.4,pointRadius:2,borderWidth:2.5}]},options:{...CD,plugins:{legend:{display:false}}}});
   }
 
-  /* SOURCE BAR — Complaint sources */
+  /* SOURCE BAR = Complaint sources */
   if (!ci.sb && document.getElementById('sourceBarChart')) { ci.sb=1;
     mkChart('sourceBarChart', {type:'bar',data:{labels:['Cold Food','Missing Items','Spilled Liquid','Late Delivery','Wrong Item','Damaged Pkg'],datasets:[{label:'% of Complaints',data:[38,27,18,9,5,3],backgroundColor:[C.r,'rgba(239,68,68,0.75)',C.o,C.y,'rgba(26,110,245,0.7)','rgba(168,85,247,0.7)'],borderRadius:5,borderSkipped:false}]},options:{...CD,plugins:{legend:{display:false}},indexAxis:'y'}});
   }
@@ -1967,12 +3711,12 @@ function initCharts() {
 
   /* PREVENTION DONUT */
   if (!ci.pv && document.getElementById('prevChart')) { ci.pv=1;
-    mkChart('prevChart', {type:'doughnut',data:{labels:['Prevented ✓','Near Miss','Missed ✗'],datasets:[{data:[94.3,4.0,1.7],backgroundColor:[C.g,'rgba(245,158,11,0.7)','rgba(239,68,68,0.6)'],borderWidth:3,borderColor:'#f8fafc',hoverOffset:6}]},options:{...CDnoscale,cutout:'70%',plugins:{legend:{position:'bottom',labels:{color:'#475569',font:{size:8},boxWidth:10,padding:5}}}}});
+    mkChart('prevChart', {type:'doughnut',data:{labels:['Prevented =','Near Miss','Missed ='],datasets:[{data:[94.3,4.0,1.7],backgroundColor:[C.g,'rgba(245,158,11,0.7)','rgba(239,68,68,0.6)'],borderWidth:3,borderColor:'#f8fafc',hoverOffset:6}]},options:{...CDnoscale,cutout:'70%',plugins:{legend:{position:'bottom',labels:{color:'#475569',font:{size:8},boxWidth:10,padding:5}}}}});
   }
 
   /* 3-YEAR FINANCIAL AREA */
   if (!ci.fa && document.getElementById('finAreaChart')) { ci.fa=1;
-    mkChart('finAreaChart', {type:'line',data:{labels:['Year 1','Year 2','Year 3'],datasets:[{label:'Revenue (£)',data:[87435,399315,811290],borderColor:C.b,backgroundColor:'rgba(26,110,245,0.12)',fill:true,tension:.3,pointRadius:7,pointBackgroundColor:C.b,pointBorderColor:'#fff',pointBorderWidth:2.5,borderWidth:3},{label:'Gross Profit (£)',data:[30420,169911,348594],borderColor:C.t,backgroundColor:'rgba(6,182,212,0.08)',fill:true,tension:.3,pointRadius:6,pointBackgroundColor:C.t,borderWidth:2.5},{label:'Net Profit (£)',data:[4275,93083,213596],borderColor:C.g,backgroundColor:'rgba(16,185,129,0.07)',fill:true,tension:.3,pointRadius:6,pointBackgroundColor:C.g,borderWidth:2.5}]},options:CD});
+    mkChart('finAreaChart', {type:'line',data:{labels:['Year 1','Year 2','Year 3'],datasets:[{label:'Revenue (=)',data:[87435,399315,811290],borderColor:C.b,backgroundColor:'rgba(26,110,245,0.12)',fill:true,tension:.3,pointRadius:7,pointBackgroundColor:C.b,pointBorderColor:'#fff',pointBorderWidth:2.5,borderWidth:3},{label:'Gross Profit (=)',data:[30420,169911,348594],borderColor:C.t,backgroundColor:'rgba(6,182,212,0.08)',fill:true,tension:.3,pointRadius:6,pointBackgroundColor:C.t,borderWidth:2.5},{label:'Net Profit (=)',data:[4275,93083,213596],borderColor:C.g,backgroundColor:'rgba(16,185,129,0.07)',fill:true,tension:.3,pointRadius:6,pointBackgroundColor:C.g,borderWidth:2.5}]},options:CD});
   }
 
   /* P&L GROUPED BAR */
@@ -1982,7 +3726,7 @@ function initCharts() {
 
   /* WILLINGNESS TO PAY BAR */
   if (!ci.wp && document.getElementById('wtpChart')) { ci.wp=1;
-    mkChart('wtpChart', {type:'bar',data:{labels:['<£100/mo','£100–380/mo','£380–600/mo','>£600/mo'],datasets:[{label:'% of Operators',data:[22.5,42.9,25.8,8.8],backgroundColor:[C.t,C.b,C.p2,C.g],borderRadius:5,borderSkipped:false}]},options:{...CD,plugins:{legend:{display:false}}}});
+    mkChart('wtpChart', {type:'bar',data:{labels:['<=100/mo','=100=380/mo','=380=600/mo','>=600/mo'],datasets:[{label:'% of Operators',data:[22.5,42.9,25.8,8.8],backgroundColor:[C.t,C.b,C.p2,C.g],borderRadius:5,borderSkipped:false}]},options:{...CD,plugins:{legend:{display:false}}}});
   }
 
   /* FEATURE DEMAND HORIZONTAL BAR */
@@ -1992,12 +3736,12 @@ function initCharts() {
 
   /* CUSTOMER SATISFACTION */
   if (!ci.sa && document.getElementById('satChart')) { ci.sa=1;
-    mkChart('satChart', {type:'bar',data:{labels:['1★','2★','3★','4★','5★'],datasets:[{label:'% Reviews',data:[2,3,8,28,59],backgroundColor:[C.r,'rgba(239,68,68,0.6)',C.o,C.t,C.g],borderRadius:5,borderSkipped:false}]},options:{...CD,plugins:{legend:{display:false}}}});
+    mkChart('satChart', {type:'bar',data:{labels:['1=','2=','3=','4=','5='],datasets:[{label:'% Reviews',data:[2,3,8,28,59],backgroundColor:[C.r,'rgba(239,68,68,0.6)',C.o,C.t,C.g],borderRadius:5,borderSkipped:false}]},options:{...CD,plugins:{legend:{display:false}}}});
   }
 
   /* CASH FLOW LINE */
   if (!ci.cf && document.getElementById('cashFlowChart')) { ci.cf=1;
-    mkChart('cashFlowChart', {type:'line',data:{labels:['Start','Year 1','Year 2','Year 3'],datasets:[{label:'Closing Cash (£)',data:[25134,32675,128159,344154],borderColor:C.g,backgroundColor:'rgba(16,185,129,0.1)',fill:true,tension:.3,pointRadius:6,pointBackgroundColor:C.g,pointBorderColor:'#fff',pointBorderWidth:2.5,borderWidth:3},{label:'Net Cash Flow (£)',data:[0,7542,95483,215996],borderColor:C.b,tension:.3,pointRadius:5,pointBackgroundColor:C.b,borderWidth:2,borderDash:[4,3]}]},options:CD});
+    mkChart('cashFlowChart', {type:'line',data:{labels:['Start','Year 1','Year 2','Year 3'],datasets:[{label:'Closing Cash (=)',data:[25134,32675,128159,344154],borderColor:C.g,backgroundColor:'rgba(16,185,129,0.1)',fill:true,tension:.3,pointRadius:6,pointBackgroundColor:C.g,pointBorderColor:'#fff',pointBorderWidth:2.5,borderWidth:3},{label:'Net Cash Flow (=)',data:[0,7542,95483,215996],borderColor:C.b,tension:.3,pointRadius:5,pointBackgroundColor:C.b,borderWidth:2,borderDash:[4,3]}]},options:CD});
   }
 
   /* CUSTOMER ADOPTION LINE */
@@ -2012,20 +3756,13 @@ function initCharts() {
 
   /* ROI BAR */
   if (!ci.roi && document.getElementById('roiChart')) { ci.roi=1;
-    mkChart('roiChart', {type:'bar',data:{labels:['Wk1','Wk2','Wk3','Wk4','Wk5','Wk6','Wk7','Wk8'],datasets:[{label:'Refunds Saved (£)',data:[120,280,420,580,720,850,980,1100],backgroundColor:'rgba(16,185,129,0.65)',borderRadius:5,borderSkipped:false},{label:'Platform Cost (£)',data:[99,99,99,99,99,99,99,99],backgroundColor:'rgba(26,110,245,0.5)',borderRadius:5,borderSkipped:false}]},options:CD});
+    mkChart('roiChart', {type:'bar',data:{labels:['Wk1','Wk2','Wk3','Wk4','Wk5','Wk6','Wk7','Wk8'],datasets:[{label:'Refunds Saved (=)',data:[120,280,420,580,720,850,980,1100],backgroundColor:'rgba(16,185,129,0.65)',borderRadius:5,borderSkipped:false},{label:'Platform Cost (=)',data:[99,99,99,99,99,99,99,99],backgroundColor:'rgba(26,110,245,0.5)',borderRadius:5,borderSkipped:false}]},options:CD});
   }
 
-  /* DEMO PAGE CHARTS */
-  if (!ci.d1 && document.getElementById('demoChart1')) { ci.d1=1;
-    var ld=Array.from({length:20},()=>Math.floor(Math.random()*75+10));
-    var lc=mkChart('demoChart1', {type:'line',data:{labels:ld.map((_,i)=>(i+1)+'m'),datasets:[{label:'Risk Score',data:ld,borderColor:C.e,backgroundColor:'rgba(0,212,255,0.07)',fill:true,tension:.4,pointRadius:2}]},options:{...CD,animation:{duration:300},plugins:{legend:{display:false}}}});
-    if (lc) setInterval(function(){lc.data.datasets[0].data.push(Math.floor(Math.random()*75+10));lc.data.datasets[0].data.shift();lc.data.labels.push((parseInt(lc.data.labels[lc.data.labels.length-1])+1)+'m');lc.data.labels.shift();lc.update('none');},2000);
-  }
-  if (!ci.d2 && document.getElementById('demoChart2')) { ci.d2=1;
-    mkChart('demoChart2', {type:'doughnut',data:{labels:['Prevented','Active Risk','Missed'],datasets:[{data:[94,5,1],backgroundColor:[C.g,C.o,C.r],borderWidth:0}]},options:{...CDnoscale,cutout:'65%'}});
-  }
+  // Demo charts handled by initDemoCharts()
+
 }
-  /* ── RESULTS PAGE: Complaint Trend 2 — Stacked Bar (different type) ── */
+  /* == RESULTS PAGE: Complaint Trend 2 = Stacked Bar (different type) == */
   if (!ci.ct2 && document.getElementById('complaintTrend2')) { ci.ct2=1;
     mkChart('complaintTrend2', {type:'bar',data:{labels:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
       datasets:[
@@ -2037,22 +3774,22 @@ function initCharts() {
       ]},options:{...CD,plugins:{legend:{position:'bottom',labels:{color:'#475569',font:{size:8},boxWidth:9,padding:5}}}}});
   }
 
-  /* ── RESULTS PAGE: Refund Value Trend 2 — Mixed Bar + Line ── */
+  /* == RESULTS PAGE: Refund Value Trend 2 = Mixed Bar + Line == */
   if (!ci.rt2 && document.getElementById('refundTrend2')) { ci.rt2=1;
     mkChart('refundTrend2', {type:'bar',data:{labels:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
       datasets:[
-        {type:'bar',label:'Monthly Refunds (£)',data:[2400,2200,2000,1750,1500,1200,950,780,620,490,380,280],
+        {type:'bar',label:'Monthly Refunds (=)',data:[2400,2200,2000,1750,1500,1200,950,780,620,490,380,280],
           backgroundColor:'rgba(239,68,68,0.5)',borderRadius:4,yAxisID:'y',order:2},
-        {type:'bar',label:'Monthly Savings (£)',data:[0,200,400,650,900,1200,1450,1620,1780,1910,2020,2120],
+        {type:'bar',label:'Monthly Savings (=)',data:[0,200,400,650,900,1200,1450,1620,1780,1910,2020,2120],
           backgroundColor:'rgba(16,185,129,0.6)',borderRadius:4,yAxisID:'y',order:2},
         {type:'line',label:'Net Refund Trend',data:[2400,2200,2000,1750,1500,1200,950,780,620,490,380,280],
           borderColor:C.r,tension:.45,pointRadius:3,pointBackgroundColor:C.r,fill:false,borderWidth:2,yAxisID:'y',order:1}
       ]},options:{...CD,plugins:{legend:{position:'bottom',labels:{color:'#475569',font:{size:8},boxWidth:9,padding:5}}}}});
   }
 
-  /* ── RESULTS PAGE: Customer Satisfaction — Polar Area (different type) ── */
+  /* == RESULTS PAGE: Customer Satisfaction = Polar Area (different type) == */
   if (!ci.sa2 && document.getElementById('satChart2')) { ci.sa2=1;
-    mkChart('satChart2', {type:'polarArea',data:{labels:['1★ (2%)','2★ (3%)','3★ (8%)','4★ (28%)','5★ (59%)'],
+    mkChart('satChart2', {type:'polarArea',data:{labels:['1= (2%)','2= (3%)','3= (8%)','4= (28%)','5= (59%)'],
       datasets:[{data:[2,3,8,28,59],
         backgroundColor:['rgba(239,68,68,0.65)','rgba(239,68,68,0.4)','rgba(245,158,11,0.6)','rgba(0,212,255,0.6)','rgba(16,185,129,0.7)'],
         borderColor:['#ef4444','rgba(239,68,68,0.6)','#f59e0b','#00d4ff','#10b981'],
@@ -2061,7 +3798,7 @@ function initCharts() {
         plugins:{legend:{position:'right',labels:{color:'#475569',font:{size:8},boxWidth:9,padding:4}}}}});
   }
 
-  /* ── RESULTS PAGE: Operational Efficiency — Horizontal grouped Bar (different type) ── */
+  /* == RESULTS PAGE: Operational Efficiency = Horizontal grouped Bar (different type) == */
   if (!ci.ef2 && document.getElementById('effChart2')) { ci.ef2=1;
     mkChart('effChart2', {type:'bar',data:{labels:['Speed','Accuracy','Prevention','Recovery','Satisfaction','Forensics'],
       datasets:[
@@ -2071,7 +3808,7 @@ function initCharts() {
         plugins:{legend:{position:'bottom',labels:{color:'#475569',font:{size:8},boxWidth:9,padding:4}}}}});
   }
 
-  /* ── RESULTS PAGE: Prevention Rate Progress — Line chart (different type) ── */
+  /* == RESULTS PAGE: Prevention Rate Progress = Line chart (different type) == */
   if (!ci.pv2 && document.getElementById('prevChart2')) { ci.pv2=1;
     mkChart('prevChart2', {type:'line',data:{labels:['Wk1','Wk2','Wk3','Wk4','Wk5','Wk6','Wk7','Wk8'],
       datasets:[
@@ -2083,7 +3820,7 @@ function initCharts() {
       ]},options:CD});
   }
 
-  /* ── RESULTS PAGE: ROI Dashboard Pilot 8 Weeks — Rich mixed chart ── */
+  /* == RESULTS PAGE: ROI Dashboard Pilot 8 Weeks = Rich mixed chart == */
   if (!ci.roi2 && document.getElementById('roiChart2')) { ci.roi2=1;
     var roiSaved  = [120,280,420,580,720,850,980,1100];
     var roiCost   = [99,99,99,99,99,99,99,99];
@@ -2095,15 +3832,15 @@ function initCharts() {
       data:{
         labels:['Wk 1','Wk 2','Wk 3','Wk 4','Wk 5','Wk 6','Wk 7','Wk 8'],
         datasets:[
-          {type:'bar',  label:'Refunds Saved (£)', data:roiSaved,
+          {type:'bar',  label:'Refunds Saved (=)', data:roiSaved,
             backgroundColor:'rgba(16,185,129,0.65)', borderRadius:6, borderSkipped:false, yAxisID:'y', order:3},
-          {type:'bar',  label:'Platform Cost (£)',  data:roiCost,
+          {type:'bar',  label:'Platform Cost (=)',  data:roiCost,
             backgroundColor:'rgba(239,68,68,0.45)', borderRadius:6, borderSkipped:false, yAxisID:'y', order:3},
-          {type:'line', label:'Cumulative Net ROI (£)', data:roiCumROI,
+          {type:'line', label:'Cumulative Net ROI (=)', data:roiCumROI,
             borderColor:C.b, backgroundColor:'rgba(26,110,245,0.08)', fill:true,
             tension:.4, pointRadius:5, pointBackgroundColor:C.b, pointBorderColor:'#fff',
             pointBorderWidth:2, borderWidth:2.5, yAxisID:'y2', order:1},
-          {type:'line', label:'Break-even (£0)', data:[0,0,0,0,0,0,0,0],
+          {type:'line', label:'Break-even (=0)', data:[0,0,0,0,0,0,0,0],
             borderColor:'rgba(100,116,139,0.35)', borderDash:[5,4],
             pointRadius:0, borderWidth:1.5, fill:false, yAxisID:'y2', order:2}
         ]
@@ -2113,12 +3850,12 @@ function initCharts() {
         interaction:{mode:'index',intersect:false},
         plugins:{
           legend:{position:'bottom',labels:{color:'#475569',font:{size:8.5},boxWidth:10,padding:8}},
-          tooltip:{callbacks:{label:function(ctx){return ' '+ctx.dataset.label+': £'+ctx.parsed.y;}}}
+          tooltip:{callbacks:{label:function(ctx){return ' '+ctx.dataset.label+': ='+ctx.parsed.y;}}}
         },
         scales:{
           x:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{color:'#64748b',font:{size:9}}},
-          y:{position:'left',  grid:{color:'rgba(0,0,0,0.04)'}, ticks:{color:'#64748b',font:{size:9},callback:function(v){return'£'+v;}}, title:{display:true,text:'Weekly (£)',color:'#94a3b8',font:{size:8}}},
-          y2:{position:'right', grid:{drawOnChartArea:false}, ticks:{color:C.b,font:{size:9},callback:function(v){return'£'+v;}}, title:{display:true,text:'Cumulative ROI (£)',color:C.b,font:{size:8}}}
+          y:{position:'left',  grid:{color:'rgba(0,0,0,0.04)'}, ticks:{color:'#64748b',font:{size:9},callback:function(v){return'='+v;}}, title:{display:true,text:'Weekly (=)',color:'#94a3b8',font:{size:8}}},
+          y2:{position:'right', grid:{drawOnChartArea:false}, ticks:{color:C.b,font:{size:9},callback:function(v){return'='+v;}}, title:{display:true,text:'Cumulative ROI (=)',color:C.b,font:{size:8}}}
         }
       }
     });
