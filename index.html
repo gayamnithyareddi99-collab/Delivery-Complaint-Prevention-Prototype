@@ -1,0 +1,956 @@
+import { useState, useEffect, useRef, useCallback } from "react";
+
+// ─── THEME ───────────────────────────────────────────────────────────────────
+const C = {
+  bg: "#07090f", bg2: "#0d1224", bg3: "#111827",
+  border: "rgba(255,255,255,0.07)", border2: "rgba(255,255,255,0.12)",
+  blue: "#1a6ef5", blue2: "#2b7fff", cyan: "#00d4ff",
+  purple: "#7c3aed", purple2: "#a855f7",
+  green: "#10b981", green2: "#34d399",
+  red: "#ef4444", orange: "#f59e0b", yellow: "#fbbf24",
+  text: "#e2e8f0", text2: "#94a3b8", text3: "#475569",
+};
+
+// ─── AI CALL ─────────────────────────────────────────────────────────────────
+async function askAI(system, userMsg, maxTokens = 900) {
+  const res = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: "claude-sonnet-4-20250514",
+      max_tokens: maxTokens,
+      system,
+      messages: [{ role: "user", content: userMsg }],
+    }),
+  });
+  const data = await res.json();
+  if (data.error) throw new Error(data.error.message);
+  return data.content?.[0]?.text ?? "";
+}
+
+async function askAIJSON(system, userMsg, maxTokens = 900) {
+  const text = await askAI(system + "\n\nRETURN ONLY VALID JSON. No markdown. No explanation.", userMsg, maxTokens);
+  return JSON.parse(text.replace(/```json|```/g, "").trim());
+}
+
+// ─── LIVE DATA ────────────────────────────────────────────────────────────────
+const ORDERS = [
+  { id: "#4821", items: "3x Pizza + Garlic Bread + 2 Colas", platform: "Uber Eats", dist: "4.2km", time: "18:42", weather: "Rain", load: "Busy", risk: 87, stage: "In Kitchen" },
+  { id: "#4822", items: "Curry Set + Naan + Raita + Lassi", platform: "Deliveroo", dist: "2.1km", time: "18:44", weather: "Rain", load: "Busy", risk: 54, stage: "Packing" },
+  { id: "#4823", items: "Burger + Fries + Cola", platform: "Just Eat", dist: "1.3km", time: "18:46", weather: "Rain", load: "Busy", risk: 12, stage: "Dispatched" },
+  { id: "#4824", items: "6x Sushi Rolls + Miso + Edamame", platform: "Uber Eats", dist: "5.8km", time: "18:41", weather: "Rain", load: "Surge", risk: 94, stage: "Preparing" },
+  { id: "#4825", items: "Pasta Carbonara + Garlic Bread", platform: "Deliveroo", dist: "1.8km", time: "18:48", weather: "Rain", load: "Busy", risk: 18, stage: "Packing" },
+  { id: "#4826", items: "Korean BBQ Set + Bibimbap + Kimchi", platform: "Just Eat", dist: "3.1km", time: "18:50", weather: "Rain", load: "Surge", risk: 63, stage: "In Kitchen" },
+  { id: "#4827", items: "Fish & Chips x2 + Mushy Peas", platform: "Uber Eats", dist: "2.4km", time: "18:52", weather: "Rain", load: "Busy", risk: 29, stage: "Packing" },
+  { id: "#4828", items: "Indian Thali + Poppadoms + 3 Dips", platform: "Deliveroo", dist: "4.8km", time: "18:53", weather: "Rain", load: "Surge", risk: 78, stage: "In Kitchen" },
+];
+
+const TICKS = [
+  { t: "ok", m: "Order #4823 delivered · Customer rated ★★★★★" },
+  { t: "cr", m: "CRITICAL: Order #4824 sushi 5.8km rain · double insulation applied" },
+  { t: "ok", m: "Dispute Won · #REF-441 · £47 recovered from Uber Eats" },
+  { t: "hi", m: "Peak Warning · Volume +24% vs last Friday · extra packer at 6PM" },
+  { t: "ok", m: "OLM Updated · New pattern: curry liquid risk model refined" },
+  { t: "ok", m: "£182 saved in refunds this past hour · 4 interventions logged" },
+  { t: "cr", m: "Risk Alert: Order #4826 Korean BBQ sauce spill risk · intervention triggered" },
+  { t: "ok", m: "CQN Sync · 14 new patterns received from Community Quality Network" },
+];
+
+// ─── HELPERS ──────────────────────────────────────────────────────────────────
+function riskColor(r) { return r >= 75 ? C.red : r >= 45 ? C.orange : C.green; }
+function riskLabel(r) { return r >= 85 ? "CRITICAL" : r >= 65 ? "HIGH" : r >= 40 ? "MONITOR" : r >= 20 ? "LOW" : "CLEAR"; }
+
+function AIBox({ result, loading, color = C.blue }) {
+  if (!loading && !result) return null;
+  return (
+    <div style={{ background: `${color}10`, border: `1px solid ${color}25`, borderRadius: 10, padding: "12px 14px", marginTop: 10, fontSize: 11, color: C.text2, lineHeight: 1.75 }}>
+      <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: "1.2px", textTransform: "uppercase", color, marginBottom: 7, display: "flex", alignItems: "center", gap: 5 }}>
+        ◈ AI ANALYSIS
+      </div>
+      {loading ? (
+        <div style={{ display: "flex", alignItems: "center", gap: 8, color: C.text3 }}>
+          <Spinner /> Analysing with DCPE AI…
+        </div>
+      ) : (
+        <div dangerouslySetInnerHTML={{ __html: formatAI(result) }} />
+      )}
+    </div>
+  );
+}
+
+function Spinner() {
+  return (
+    <div style={{ display: "flex", gap: 3 }}>
+      {[0, 1, 2].map(i => (
+        <div key={i} style={{ width: 5, height: 5, borderRadius: "50%", background: C.blue, animation: `bounce 1.4s ${i * 0.2}s infinite` }} />
+      ))}
+    </div>
+  );
+}
+
+function formatAI(text) {
+  return text
+    .replace(/\*\*(.+?)\*\*/g, '<strong style="color:#e2e8f0">$1</strong>')
+    .replace(/\n\n/g, "<br/><br/>")
+    .replace(/\n/g, "<br/>");
+}
+
+function Panel({ title, badge, badgeColor = C.blue, children, style = {} }) {
+  return (
+    <div style={{ background: C.bg2, border: `1px solid ${C.border}`, borderRadius: 12, padding: 14, ...style }}>
+      {title && (
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10, flexWrap: "wrap", gap: 6 }}>
+          <span style={{ fontSize: 12, fontWeight: 700, color: C.text }}>{title}</span>
+          {badge && (
+            <span style={{ fontSize: 8.5, fontWeight: 700, letterSpacing: "0.8px", textTransform: "uppercase", padding: "3px 9px", borderRadius: 50, background: `${badgeColor}15`, border: `1px solid ${badgeColor}30`, color: badgeColor }}>
+              {badge}
+            </span>
+          )}
+        </div>
+      )}
+      {children}
+    </div>
+  );
+}
+
+function Btn({ children, onClick, disabled, color = C.blue, style = {}, full = false }) {
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      style={{
+        background: disabled ? "rgba(255,255,255,0.05)" : `linear-gradient(135deg, ${color}, ${color}cc)`,
+        color: disabled ? C.text3 : "#fff",
+        border: "none", borderRadius: 8, padding: "9px 18px",
+        fontSize: 11.5, fontWeight: 700, cursor: disabled ? "not-allowed" : "pointer",
+        fontFamily: "inherit", transition: "opacity .15s", width: full ? "100%" : "auto",
+        display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6,
+        opacity: disabled ? 0.5 : 1, whiteSpace: "nowrap", ...style
+      }}
+    >
+      {children}
+    </button>
+  );
+}
+
+function Select({ value, onChange, options }) {
+  return (
+    <select value={value} onChange={e => onChange(e.target.value)}
+      style={{ width: "100%", background: "rgba(255,255,255,0.04)", border: `1px solid ${C.border}`, borderRadius: 7, padding: "7px 10px", color: C.text, fontSize: 11, fontFamily: "inherit", outline: "none" }}>
+      {options.map(o => <option key={o} value={o} style={{ background: "#1e293b" }}>{o}</option>)}
+    </select>
+  );
+}
+
+function Input({ value, onChange, placeholder, type = "text" }) {
+  return (
+    <input type={type} value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder}
+      style={{ width: "100%", background: "rgba(255,255,255,0.04)", border: `1px solid ${C.border}`, borderRadius: 7, padding: "7px 10px", color: C.text, fontSize: 11, fontFamily: "inherit", outline: "none", boxSizing: "border-box" }} />
+  );
+}
+
+function KpiCard({ val, label, trend, trendUp, kc }) {
+  return (
+    <div style={{ background: C.bg2, border: `1px solid ${C.border}`, borderRadius: 10, padding: "12px 10px", position: "relative", overflow: "hidden" }}>
+      <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: kc }} />
+      <div style={{ fontSize: "clamp(18px,2.5vw,26px)", fontWeight: 800, color: C.text, lineHeight: 1 }}>{val}</div>
+      <div style={{ fontSize: 8.5, color: C.text3, textTransform: "uppercase", letterSpacing: "1px", marginTop: 3 }}>{label}</div>
+      {trend && <div style={{ fontSize: 9, fontWeight: 600, marginTop: 3, color: trendUp ? C.green : C.red }}>{trend}</div>}
+    </div>
+  );
+}
+
+// ─── GAUGE ────────────────────────────────────────────────────────────────────
+function Gauge({ score }) {
+  const c = riskColor(score);
+  const r = 44, circ = 2 * Math.PI * r;
+  const offset = circ * (1 - score / 100);
+  return (
+    <div style={{ textAlign: "center", padding: "8px 0" }}>
+      <div style={{ position: "relative", display: "inline-block", width: 110, height: 110 }}>
+        <svg width="110" height="110" viewBox="0 0 110 110" style={{ transform: "rotate(-90deg)" }}>
+          <circle cx="55" cy="55" r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="9" />
+          <circle cx="55" cy="55" r={r} fill="none" stroke={c} strokeWidth="9" strokeLinecap="round"
+            strokeDasharray={circ} strokeDashoffset={offset} style={{ transition: "stroke-dashoffset .9s ease, stroke .4s ease" }} />
+        </svg>
+        <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+          <div style={{ fontSize: 26, fontWeight: 800, color: c, lineHeight: 1 }}>{score}%</div>
+          <div style={{ fontSize: 8, color: C.text3, textTransform: "uppercase", marginTop: 2 }}>Risk</div>
+          <div style={{ fontSize: 9.5, fontWeight: 700, color: c, marginTop: 2 }}>{riskLabel(score)}</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── FACTOR BARS ─────────────────────────────────────────────────────────────
+function FactorBar({ name, score }) {
+  const c = score >= 70 ? C.red : score >= 45 ? C.orange : C.green;
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "110px 1fr 36px", gap: 8, alignItems: "center", fontSize: 10 }}>
+      <span style={{ color: C.text2, fontSize: 9.5 }}>{name}</span>
+      <div style={{ height: 5, background: "rgba(255,255,255,0.06)", borderRadius: 3, overflow: "hidden" }}>
+        <div style={{ height: "100%", width: `${score}%`, background: c, borderRadius: 3, transition: "width .8s ease" }} />
+      </div>
+      <span style={{ color: c, fontWeight: 700, textAlign: "right" }}>{score}%</span>
+    </div>
+  );
+}
+
+// ─── LIVE TICKER ─────────────────────────────────────────────────────────────
+function LiveTicker() {
+  const [items, setItems] = useState([TICKS[0], TICKS[1], TICKS[2]]);
+  const idx = useRef(3);
+  useEffect(() => {
+    const t = setInterval(() => {
+      const next = TICKS[idx.current % TICKS.length];
+      idx.current++;
+      setItems(prev => [next, ...prev].slice(0, 5));
+    }, 4000);
+    return () => clearInterval(t);
+  }, []);
+  const tc = { ok: C.green, cr: C.red, hi: C.orange };
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+      {items.map((item, i) => (
+        <div key={i} style={{ fontSize: 9.5, color: C.text3, padding: "4px 0", borderBottom: `1px solid rgba(255,255,255,0.03)`, display: "flex", gap: 8 }}>
+          <span style={{ color: "#334155", flexShrink: 0, fontSize: 8.5 }}>{new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}</span>
+          <span style={{ color: tc[item.t] || C.text3 }}>{item.m}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ─── TAB: COMMAND CENTER ──────────────────────────────────────────────────────
+function CommandCenter({ savings, setSavings, alertCount, setAlertCount }) {
+  const heatData = [[0,1,0,1,2,3,1],[2,3,2,2,3,3,2],[1,2,2,3,4,4,3],[0,0,1,1,2,2,1]];
+  const heatColors = ["rgba(255,255,255,0.03)","rgba(16,185,129,.25)","rgba(245,158,11,.35)","rgba(239,68,68,.42)","rgba(239,68,68,.68)"];
+  const labels = ["Morning","Lunch","Evening","Late Night"];
+  const [alerts, setAlerts] = useState([
+    { id: 1, level: "cr", title: "CRITICAL — Order #4824", body: "Temp loss 94% · Sushi 5.8km rain · Use double insulation immediately", save: 42 },
+    { id: 2, level: "hi", title: "HIGH — Order #4821", body: "Peak hour + 4.2km · 3x Pizza · Verify all items before sealing", save: 28 },
+    { id: 3, level: "md", title: "MEDIUM — Order #4822", body: "Curry liquid contents · Switch to spill-proof bag before dispatch", save: 15 },
+  ]);
+  const alertLevelColor = { cr: C.red, hi: C.orange, md: C.blue };
+
+  function resolveAlert(id, save) {
+    setAlerts(a => a.filter(x => x.id !== id));
+    setSavings(s => s + save);
+    setAlertCount(c => Math.max(0, c - 1));
+  }
+
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: 12 }}>
+      {/* Main */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 8 }}>
+          <KpiCard val="247" label="Active Orders" trend="↑ +12 vs 1hr ago" trendUp kc={`linear-gradient(90deg,${C.green},${C.cyan})`} />
+          <KpiCard val={`${alertCount}`} label="Risk Alerts" trend="↓ 3 resolved" kc={`linear-gradient(90deg,${C.red},${C.orange})`} />
+          <KpiCard val="94.3%" label="Prevention Rate" trend="↑ +2.1% this week" trendUp kc={`linear-gradient(90deg,${C.blue},${C.purple})`} />
+        </div>
+        <Panel title="Live Risk Score Feed" badge="● LIVE" badgeColor={C.green}>
+          <LiveRiskFeed />
+        </Panel>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+          <Panel title="Prevention Breakdown">
+            <PreventionDonut />
+          </Panel>
+          <Panel title="Weekly ROI">
+            <ROIBars />
+          </Panel>
+        </div>
+        <Panel title="Live Event Stream" badge="● LIVE" badgeColor={C.green} style={{ padding: "10px 14px" }}>
+          <LiveTicker />
+        </Panel>
+      </div>
+      {/* Side */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        <Panel>
+          <div style={{ textAlign: "center", padding: "10px 0 6px" }}>
+            <div style={{ fontSize: "clamp(28px,4vw,42px)", fontWeight: 800, background: `linear-gradient(135deg,${C.green},${C.cyan})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", lineHeight: 1 }}>
+              £{savings.toLocaleString()}
+            </div>
+            <div style={{ fontSize: 9, color: C.text3, textTransform: "uppercase", letterSpacing: "1px", marginTop: 2 }}>Refunds Prevented Today</div>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 6, marginTop: 10 }}>
+            {[["23","Actions",C.cyan],["5","Disputes",C.purple2],["100%","Won",C.green]].map(([v,l,c]) => (
+              <div key={l} style={{ textAlign: "center", padding: "8px 4px", background: "rgba(255,255,255,0.03)", borderRadius: 7 }}>
+                <div style={{ fontSize: 14, fontWeight: 800, color: c }}>{v}</div>
+                <div style={{ fontSize: 7.5, color: C.text3, textTransform: "uppercase", marginTop: 2 }}>{l}</div>
+              </div>
+            ))}
+          </div>
+        </Panel>
+        <Panel title="⚠️ Active Alerts" badge={`${alertCount} ACTIVE`} badgeColor={C.red}>
+          {alerts.length === 0 && <div style={{ fontSize: 10, color: C.text3, padding: "8px 0" }}>✓ All alerts resolved</div>}
+          {alerts.map(a => (
+            <div key={a.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8, padding: 10, borderRadius: 9, marginBottom: 6, background: `${alertLevelColor[a.level]}08`, border: `1px solid ${alertLevelColor[a.level]}20` }}>
+              <div>
+                <div style={{ fontSize: 10.5, fontWeight: 700, color: alertLevelColor[a.level] }}>{a.title}</div>
+                <div style={{ fontSize: 9.5, color: C.text3, marginTop: 2, lineHeight: 1.5 }}>{a.body}</div>
+              </div>
+              <button onClick={() => resolveAlert(a.id, a.save)} style={{ background: "rgba(255,255,255,0.07)", border: `1px solid ${C.border2}`, color: C.text, padding: "4px 10px", borderRadius: 5, fontSize: 9, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", flexShrink: 0 }}>Fix</button>
+            </div>
+          ))}
+        </Panel>
+        <Panel title="Risk Heatmap — This Week">
+          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 8, color: "#334155", padding: "0 0 4px 64px" }}>
+            {["M","T","W","T","F","S","S"].map((d,i) => <span key={i}>{d}</span>)}
+          </div>
+          {heatData.map((row, ri) => (
+            <div key={ri} style={{ display: "grid", gridTemplateColumns: "64px 1fr", alignItems: "center", marginBottom: 3 }}>
+              <span style={{ fontSize: 7.5, color: C.text3, textAlign: "right", paddingRight: 6 }}>{labels[ri]}</span>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", gap: 3 }}>
+                {row.map((v, ci) => <div key={ci} style={{ height: 14, borderRadius: 3, background: heatColors[v] }} />)}
+              </div>
+            </div>
+          ))}
+        </Panel>
+      </div>
+    </div>
+  );
+}
+
+// ─── MINI CHARTS (pure CSS/div) ───────────────────────────────────────────────
+function LiveRiskFeed() {
+  const [data, setData] = useState(() => Array.from({ length: 24 }, () => Math.floor(Math.random() * 70 + 15)));
+  useEffect(() => {
+    const t = setInterval(() => setData(d => [...d.slice(1), Math.floor(Math.random() * 70 + 15)]), 2000);
+    return () => clearInterval(t);
+  }, []);
+  const max = 100, h = 100;
+  const pts = data.map((v, i) => `${(i / (data.length - 1)) * 100}%,${(1 - v / max) * h}px`).join(" ");
+  return (
+    <div style={{ height: 110, position: "relative", overflow: "hidden" }}>
+      <svg width="100%" height="110" preserveAspectRatio="none" style={{ position: "absolute", inset: 0 }}>
+        <defs>
+          <linearGradient id="rfg" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stopColor={C.cyan} stopOpacity="0.3" />
+            <stop offset="100%" stopColor={C.cyan} stopOpacity="0" />
+          </linearGradient>
+        </defs>
+        <polyline points={data.map((v, i) => `${(i / (data.length - 1)) * 100}%,${(1 - v / max) * 100}px`).join(" ")} fill="none" stroke={C.cyan} strokeWidth="2" />
+      </svg>
+      <div style={{ position: "absolute", bottom: 4, right: 6, fontSize: 9, color: C.text3 }}>Live · updates 2s</div>
+    </div>
+  );
+}
+
+function PreventionDonut() {
+  const data = [{ v: 94.3, c: C.green }, { v: 4, c: C.orange }, { v: 1.7, c: C.red }];
+  const labels = ["Prevented", "At Risk", "Missed"];
+  let angle = -90;
+  const cx = 55, cy = 55, r = 40;
+  const slices = data.map(d => {
+    const a = (d.v / 100) * 360;
+    const start = angle;
+    angle += a;
+    return { ...d, start, sweep: a };
+  });
+  function arc(cx, cy, r, start, sweep) {
+    const toRad = a => (a * Math.PI) / 180;
+    const x1 = cx + r * Math.cos(toRad(start)), y1 = cy + r * Math.sin(toRad(start));
+    const x2 = cx + r * Math.cos(toRad(start + sweep)), y2 = cy + r * Math.sin(toRad(start + sweep));
+    const large = sweep > 180 ? 1 : 0;
+    return `M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${large} 1 ${x2} ${y2} Z`;
+  }
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+      <svg width="110" height="110" viewBox="0 0 110 110">
+        {slices.map((s, i) => <path key={i} d={arc(cx, cy, r, s.start, s.sweep)} fill={s.c} opacity={0.8} />)}
+        <circle cx={cx} cy={cy} r="26" fill={C.bg2} />
+        <text x={cx} y={cy - 4} textAnchor="middle" fill={C.text} fontSize="12" fontWeight="800">94.3%</text>
+        <text x={cx} y={cy + 10} textAnchor="middle" fill={C.text3} fontSize="8">prevented</text>
+      </svg>
+      <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+        {data.map((d, i) => (
+          <div key={i} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 9.5 }}>
+            <div style={{ width: 8, height: 8, borderRadius: 2, background: d.c, flexShrink: 0 }} />
+            <span style={{ color: C.text2 }}>{labels[i]}</span>
+            <span style={{ color: d.c, fontWeight: 700 }}>{d.v}%</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ROIBars() {
+  const weeks = [120, 280, 420, 580, 720, 850, 980, 1240];
+  const cost = 99;
+  const max = 1400;
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+      {weeks.map((v, i) => (
+        <div key={i} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 9 }}>
+          <span style={{ color: C.text3, width: 22, flexShrink: 0 }}>W{i + 1}</span>
+          <div style={{ flex: 1, height: 8, background: "rgba(255,255,255,0.04)", borderRadius: 4, position: "relative", overflow: "hidden" }}>
+            <div style={{ position: "absolute", left: 0, top: 0, height: "100%", width: `${(v / max) * 100}%`, background: `linear-gradient(90deg,${C.green},${C.cyan})`, borderRadius: 4, transition: "width 1s ease" }} />
+            <div style={{ position: "absolute", left: 0, top: 0, height: "100%", width: `${(cost / max) * 100}%`, background: `${C.blue}60`, borderRadius: 4 }} />
+          </div>
+          <span style={{ color: C.green, fontWeight: 700, width: 34, textAlign: "right" }}>£{v}</span>
+        </div>
+      ))}
+      <div style={{ display: "flex", gap: 12, marginTop: 4, fontSize: 8.5 }}>
+        <span style={{ display: "flex", gap: 4, alignItems: "center" }}><div style={{ width: 8, height: 8, borderRadius: 2, background: C.green }} />Saved</span>
+        <span style={{ display: "flex", gap: 4, alignItems: "center" }}><div style={{ width: 8, height: 8, borderRadius: 2, background: C.blue }} />Cost £99</span>
+      </div>
+    </div>
+  );
+}
+
+// ─── TAB: ORDER MONITOR ───────────────────────────────────────────────────────
+function OrderMonitor() {
+  const [selected, setSelected] = useState(null);
+  const [result, setResult] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  async function analyse(order) {
+    setSelected(order.id);
+    setResult("");
+    setLoading(true);
+    try {
+      const text = await askAI(
+        "You are the DCPE Forensic Intelligence Engine for a UK food delivery SaaS. Provide expert, specific, actionable analysis for kitchen staff. UK English. Use **bold** for section headings.",
+        `Analyse this live UK delivery order:\n\nOrder: ${order.id}\nItems: ${order.items}\nPlatform: ${order.platform}\nDistance: ${order.dist}\nTime: ${order.time}\nWeather: ${order.weather}\nKitchen Load: ${order.load}\nRisk Score: ${order.risk}%\nStage: ${order.stage}\n\nProvide:\n1. **Risk Breakdown** - what specifically drives the ${order.risk}% score\n2. **3 Immediate Actions** for kitchen staff RIGHT NOW\n3. **Packaging Instruction** - exact recommendation\n4. **Refund Risk** if ignored vs actioned (in £)`
+      );
+      setResult(text);
+    } catch (e) { setResult("Error: " + e.message); }
+    setLoading(false);
+  }
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+      <Panel title="Active Order Risk Monitor — Click any row for live AI forensic analysis" badge="● 247 ORDERS" badgeColor={C.green}>
+        <div style={{ overflowX: "auto" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 10.5 }}>
+            <thead>
+              <tr>
+                {["Order","Items","Platform","Dist","Time","Weather","Load","Risk","Status","Stage"].map(h => (
+                  <th key={h} style={{ padding: "6px 8px", textAlign: "left", fontSize: 8, textTransform: "uppercase", letterSpacing: "1.2px", color: C.text3, borderBottom: `1px solid ${C.border}`, whiteSpace: "nowrap" }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {ORDERS.map(o => {
+                const rc = riskColor(o.risk);
+                const rl = riskLabel(o.risk);
+                const isSel = selected === o.id;
+                return (
+                  <tr key={o.id} onClick={() => analyse(o)} style={{ cursor: "pointer", background: isSel ? `${C.blue}08` : "transparent" }}>
+                    <td style={{ padding: "9px 8px", fontWeight: 700, color: C.text, borderBottom: `1px solid ${C.border}` }}>{o.id}</td>
+                    <td style={{ padding: "9px 8px", color: C.text2, fontSize: 10, maxWidth: 160, borderBottom: `1px solid ${C.border}` }}>{o.items}</td>
+                    <td style={{ padding: "9px 8px", color: C.text3, fontSize: 9.5, borderBottom: `1px solid ${C.border}` }}>{o.platform}</td>
+                    <td style={{ padding: "9px 8px", color: C.text2, borderBottom: `1px solid ${C.border}` }}>{o.dist}</td>
+                    <td style={{ padding: "9px 8px", color: C.text3, borderBottom: `1px solid ${C.border}` }}>{o.time}</td>
+                    <td style={{ padding: "9px 8px", fontSize: 10, borderBottom: `1px solid ${C.border}` }}>{o.weather}</td>
+                    <td style={{ padding: "9px 8px", color: C.text3, fontSize: 9.5, borderBottom: `1px solid ${C.border}` }}>{o.load}</td>
+                    <td style={{ padding: "9px 8px", borderBottom: `1px solid ${C.border}` }}>
+                      <span style={{ fontWeight: 700, color: rc }}>{o.risk}%</span>
+                    </td>
+                    <td style={{ padding: "9px 8px", borderBottom: `1px solid ${C.border}` }}>
+                      <span style={{ display: "inline-block", padding: "2px 7px", borderRadius: 50, fontSize: 7.5, fontWeight: 700, letterSpacing: ".8px", textTransform: "uppercase", background: `${rc}18`, border: `1px solid ${rc}30`, color: rc }}>{rl}</span>
+                    </td>
+                    <td style={{ padding: "9px 8px", color: C.text3, fontSize: 10, borderBottom: `1px solid ${C.border}` }}>{o.stage}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+        <AIBox result={result} loading={loading && !!selected} color={C.blue} />
+      </Panel>
+    </div>
+  );
+}
+
+// ─── TAB: RISK SIMULATOR ──────────────────────────────────────────────────────
+function RiskSimulator() {
+  const [food, setFood] = useState("3x Large Pizzas + 2 Colas + Garlic Bread");
+  const [dist, setDist] = useState("3.5 km — Medium");
+  const [time, setTime] = useState("6:30 PM — Dinner Peak");
+  const [weather, setWeather] = useState("Rain");
+  const [load, setLoad] = useState("Busy — 24 active orders");
+  const [platform, setPlatform] = useState("Uber Eats");
+  const [staff, setStaff] = useState("Normal staffing");
+  const [history, setHistory] = useState("1 cold food complaint");
+  const [score, setScore] = useState(null);
+  const [factors, setFactors] = useState([]);
+  const [result, setResult] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  async function run() {
+    setLoading(true); setScore(null); setFactors([]); setResult("");
+    try {
+      const res = await askAIJSON(
+        "You are the DCPE AI Risk Scoring Engine for UK food delivery. Return JSON with: riskScore (0-100 int), riskLevel (CRITICAL/HIGH/MEDIUM/LOW/CLEAR), factors (array of 5 objects: {name:string, score:0-100}), interventions (array of 4 specific action strings for kitchen staff), packagingAdvice (string), refundRiskIgnored (string like '£25-40'), refundRiskActioned (string like '£0-5'), confidence (string like '93%').",
+        `Score this UK food delivery order:\nFood: ${food}\nDistance: ${dist}\nTime: ${time}\nWeather: ${weather}\nKitchen Load: ${load}\nPlatform: ${platform}\nStaffing: ${staff}\nRecent History: ${history}`
+      );
+      setScore(res.riskScore ?? 50);
+      setFactors(res.factors ?? []);
+      let html = `<strong>Risk: ${res.riskScore}% — ${res.riskLevel}</strong> (Confidence: ${res.confidence})<br/><br/>`;
+      if (res.interventions?.length) {
+        html += `<strong style="color:${C.green2}">Immediate Actions:</strong><br/>`;
+        res.interventions.forEach((a, i) => { html += `<span style="color:${C.cyan}">${i + 1}.</span> ${a}<br/>`; });
+      }
+      if (res.packagingAdvice) html += `<br/><strong style="color:${C.orange}">Packaging:</strong> ${res.packagingAdvice}<br/>`;
+      if (res.refundRiskIgnored) html += `<br/><strong style="color:${C.red}">Refund risk if ignored:</strong> ${res.refundRiskIgnored}`;
+      if (res.refundRiskActioned) html += `<br/><strong style="color:${C.green}">Refund risk if actioned:</strong> ${res.refundRiskActioned}`;
+      setResult(html);
+    } catch (e) { setResult("Error: " + e.message); }
+    setLoading(false);
+  }
+
+  const fmStyle = { display: "flex", flexDirection: "column", gap: 3 };
+  const lb = { fontSize: 8.5, color: C.text3, textTransform: "uppercase", letterSpacing: "1px", marginBottom: 3 };
+
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+      <Panel title="⚡ Order Risk Simulator" badge="Claude AI" badgeColor={C.blue}>
+        <p style={{ fontSize: 10, color: C.text3, marginBottom: 10 }}>Configure order parameters and get instant AI risk scoring with a full prevention plan.</p>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 8 }}>
+          <div style={fmStyle}><label style={lb}>Food Type</label><Select value={food} onChange={setFood} options={["3x Large Pizzas + 2 Colas + Garlic Bread","Curry Set + Naan + Raita + Lassi","6x Sushi Rolls + Miso + Edamame","Burger + Fries + Milkshake","Pasta Carbonara + Garlic Bread","Fish & Chips x2 + Mushy Peas","Korean BBQ + Bibimbap + Kimchi","Indian Thali + Poppadoms + Dips","Chinese Family Set (8 dishes)","Vegan Buddha Bowl + Smoothie"]} /></div>
+          <div style={fmStyle}><label style={lb}>Distance</label><Select value={dist} onChange={setDist} options={["0.8 km — Very Short","1.5 km — Short","3.5 km — Medium","5.2 km — Long","7.8 km — Very Long","11.2 km — Extended"]} /></div>
+          <div style={fmStyle}><label style={lb}>Time of Day</label><Select value={time} onChange={setTime} options={["11:45 AM — Lunch Rush","6:30 PM — Dinner Peak","7:00 PM — Friday Peak (Highest Risk)","8:00 PM — Late Dinner","2:30 PM — Quiet Period","11:00 PM — Late Night"]} /></div>
+          <div style={fmStyle}><label style={lb}>Weather</label><Select value={weather} onChange={setWeather} options={["Clear and Dry","Rain","Heavy Rain & Wind","Strong Wind","Snow / Ice","Dense Fog"]} /></div>
+          <div style={fmStyle}><label style={lb}>Kitchen Load</label><Select value={load} onChange={setLoad} options={["Quiet — 3 active orders","Medium — 12 active orders","Busy — 24 active orders","Surge — 38+ orders"]} /></div>
+          <div style={fmStyle}><label style={lb}>Platform</label><Select value={platform} onChange={setPlatform} options={["Uber Eats","Deliveroo","Just Eat","Direct Order"]} /></div>
+          <div style={fmStyle}><label style={lb}>Staffing</label><Select value={staff} onChange={setStaff} options={["Understaffed (1 short)","Normal staffing","Fully staffed + trainee"]} /></div>
+          <div style={fmStyle}><label style={lb}>Recent History</label><Select value={history} onChange={setHistory} options={["None — clean record","1 cold food complaint","2+ missing item reports","3+ complaints (bad streak)"]} /></div>
+        </div>
+        <Btn full disabled={loading} onClick={run} color={C.blue}>{loading ? "⚡ Calculating…" : "⚡ Generate AI Risk Score + Prevention Plan"}</Btn>
+      </Panel>
+
+      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        <Panel title="Risk Gauge">
+          {score !== null ? <Gauge score={score} /> : <div style={{ textAlign: "center", padding: 20, color: C.text3, fontSize: 11 }}>Run the simulator to see your risk score</div>}
+          {factors.length > 0 && (
+            <div style={{ marginTop: 10, display: "flex", flexDirection: "column", gap: 6 }}>
+              <div style={{ fontSize: 9, color: C.text3, textTransform: "uppercase", letterSpacing: "1px", marginBottom: 2 }}>Factor Breakdown</div>
+              {factors.map((f, i) => <FactorBar key={i} name={f.name} score={f.score} />)}
+            </div>
+          )}
+        </Panel>
+        {(loading || result) && (
+          <Panel>
+            <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: "1.2px", textTransform: "uppercase", color: C.purple2, marginBottom: 7, display: "flex", alignItems: "center", gap: 5 }}>◈ AI Assessment</div>
+            {loading ? <div style={{ display: "flex", gap: 8, color: C.text3, fontSize: 10.5 }}><Spinner /> Calculating…</div> : <div style={{ fontSize: 11, color: C.text2, lineHeight: 1.75 }} dangerouslySetInnerHTML={{ __html: result }} />}
+          </Panel>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── TAB: FORENSICS LAB ───────────────────────────────────────────────────────
+function ForensicsLab() {
+  const [complaint, setComplaint] = useState("Cold food on arrival");
+  const [platform, setPlatform] = useState("Deliveroo — chargeback applied");
+  const [dispatch, setDispatch] = useState("18:42");
+  const [pickup, setPickup] = useState("18:58");
+  const [delivery, setDelivery] = useState("19:24");
+  const [notes, setNotes] = useState("All items verified, double-bagged, temp 74°C at dispatch");
+  const [context, setContext] = useState("Order packed at 18:40, verified by supervisor. Driver collected at 18:58 (16 min wait). Customer reported cold food at 19:31.");
+  const [attr, setAttr] = useState(null);
+  const [result, setResult] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const templates = {
+    cold: { complaint: "Cold food on arrival", notes: "All items temp-checked at 74°C dispatch. Double thermal bag.", context: "Food at correct temp on dispatch. Driver took 22 mins to collect after arriving." },
+    missing: { complaint: "Missing items from order", notes: "All items individually verified and ticked. Photo captured.", context: "Kitchen supervisor signed off all items before sealing the bag." },
+    late: { complaint: "Food arrived late (>45 min)", notes: "Order dispatched within 18 mins of placement. On-time.", context: "Driver allocated 24 mins after dispatch. GPS shows 3 unnecessary route deviations." },
+    damaged: { complaint: "Damaged packaging on arrival", notes: "Sealed spill-proof containers, double-bagged with tape.", context: "Packaging intact at handover to driver (photo evidence). Damage during transit." },
+  };
+
+  function loadTemplate(t) {
+    const tpl = templates[t];
+    setComplaint(tpl.complaint); setNotes(tpl.notes); setContext(tpl.context);
+  }
+
+  async function run() {
+    setLoading(true); setAttr(null); setResult("");
+    try {
+      const res = await askAIJSON(
+        "You are the DCPE Failure Attribution Forensics Engine (CFFE). Return JSON with: kitchenFaultPct (int), driverFaultPct (int), platformFaultPct (int) — must sum to 100. verdict (string), confidence (string), evidence (array of 4 strings), counterArgument (string), disputeRecommendation (string: Contest/Accept/Negotiate), estimatedRecovery (string).",
+        `Attribution forensics:\nComplaint: ${complaint}\nPlatform: ${platform}\nDispatch: ${dispatch}\nDriver Pickup: ${pickup}\nDelivery: ${delivery}\nKitchen Notes: ${notes}\nContext: ${context}`
+      );
+      setAttr(res);
+      let html = `<strong>Verdict: ${res.verdict}</strong> (${res.confidence} confidence)<br/><br/>`;
+      if (res.evidence?.length) { html += `<strong style="color:${C.green2}">Forensic Evidence:</strong><br/>`; res.evidence.forEach((e, i) => { html += `<span style="color:${C.green}">${i + 1}.</span> ${e}<br/>`; }); }
+      if (res.counterArgument) html += `<br/><strong style="color:${C.cyan}">Counter-Argument:</strong><br/>"${res.counterArgument}"<br/>`;
+      if (res.estimatedRecovery) html += `<br/><strong style="color:${C.purple2}">Recovery:</strong> ${res.estimatedRecovery}`;
+      setResult(html);
+    } catch (e) { setResult("Error: " + e.message); }
+    setLoading(false);
+  }
+
+  const lb = { fontSize: 8.5, color: C.text3, textTransform: "uppercase", letterSpacing: "1px", marginBottom: 3, display: "block" };
+
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        <Panel title="🔬 Failure Attribution Forensics" badge="CFFE Active" badgeColor={C.green}>
+          <p style={{ fontSize: 10, color: C.text3, marginBottom: 10 }}>AI determines: was the failure caused by the restaurant, driver, or platform?</p>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 8 }}>
+            <div><label style={lb}>Complaint Type</label><Select value={complaint} onChange={setComplaint} options={["Cold food on arrival","Missing items from order","Wrong order delivered","Food arrived late (>45 min)","Damaged packaging on arrival","Raw / undercooked food"]} /></div>
+            <div><label style={lb}>Platform</label><Select value={platform} onChange={setPlatform} options={["Uber Eats — automated refund","Deliveroo — chargeback applied","Just Eat — dispute raised","Direct — customer complaint"]} /></div>
+            <div><label style={lb}>Dispatch Time</label><Input value={dispatch} onChange={setDispatch} /></div>
+            <div><label style={lb}>Driver Pickup</label><Input value={pickup} onChange={setPickup} /></div>
+            <div><label style={lb}>Delivery Time</label><Input value={delivery} onChange={setDelivery} /></div>
+            <div><label style={lb}>Kitchen Log Notes</label><Input value={notes} onChange={setNotes} /></div>
+          </div>
+          <div style={{ marginBottom: 8 }}>
+            <label style={lb}>Additional Context</label>
+            <textarea value={context} onChange={e => setContext(e.target.value)} style={{ width: "100%", background: "rgba(255,255,255,0.04)", border: `1px solid ${C.border}`, borderRadius: 7, padding: "8px 10px", color: C.text, fontSize: 11, fontFamily: "inherit", outline: "none", resize: "vertical", minHeight: 60, boxSizing: "border-box" }} />
+          </div>
+          <Btn full disabled={loading} onClick={run} color={C.green}>{loading ? "🔬 Analysing…" : "🔬 Run Full Attribution Forensics"}</Btn>
+        </Panel>
+        <Panel title="Quick Templates">
+          <p style={{ fontSize: 10, color: C.text3, marginBottom: 8 }}>Load a pre-built template for the most common dispute types:</p>
+          {[["cold","🌡️ Cold Food Template"],["missing","📦 Missing Items Template"],["late","⏱️ Late Delivery (Driver) Template"],["damaged","💥 Packaging Damage Template"]].map(([k, label]) => (
+            <button key={k} onClick={() => loadTemplate(k)} style={{ width: "100%", textAlign: "left", padding: "9px 12px", marginBottom: 6, background: "rgba(255,255,255,0.04)", border: `1px solid ${C.border}`, borderRadius: 8, color: C.text2, fontSize: 10.5, cursor: "pointer", fontFamily: "inherit" }}>{label}</button>
+          ))}
+        </Panel>
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        {attr && (
+          <Panel title="Attribution Result">
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 12 }}>
+              {[["Kitchen", attr.kitchenFaultPct, C.red],["Driver/Transit", attr.driverFaultPct, C.orange],["Platform", attr.platformFaultPct, C.blue]].map(([lbl, pct, c]) => (
+                <div key={lbl} style={{ textAlign: "center", padding: 10, background: `${c}09`, borderRadius: 8, border: `1px solid ${c}20` }}>
+                  <div style={{ fontSize: 22, fontWeight: 800, color: c }}>{pct}%</div>
+                  <div style={{ fontSize: 8.5, color: C.text3, marginTop: 2 }}>{lbl} Fault</div>
+                </div>
+              ))}
+            </div>
+            <div style={{ textAlign: "center", padding: 9, borderRadius: 8, background: `${C.green}10`, border: `1px solid ${C.green}25`, fontWeight: 700, fontSize: 11.5, color: C.green, marginBottom: 10 }}>
+              {attr.verdict} — {attr.disputeRecommendation}
+            </div>
+          </Panel>
+        )}
+        {(loading || result) && (
+          <Panel>
+            <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: "1.2px", textTransform: "uppercase", color: C.green2, marginBottom: 7 }}>◈ Forensic Attribution Report</div>
+            {loading ? <div style={{ display: "flex", gap: 8, color: C.text3, fontSize: 10.5 }}><Spinner /> Analysing forensics…</div> : <div style={{ fontSize: 11, color: C.text2, lineHeight: 1.75 }} dangerouslySetInnerHTML={{ __html: result }} />}
+          </Panel>
+        )}
+        {!attr && !loading && <div style={{ textAlign: "center", padding: 30, color: C.text3, fontSize: 11 }}>Run forensics to see attribution breakdown and evidence report</div>}
+      </div>
+    </div>
+  );
+}
+
+// ─── TAB: DISPUTE CENTER ──────────────────────────────────────────────────────
+function DisputeCenter() {
+  const [type, setType] = useState("Missing items from order");
+  const [value, setValue] = useState("£52.80");
+  const [dispatch, setDispatch] = useState("18:42");
+  const [pickup, setPickup] = useState("18:58");
+  const [delivery, setDelivery] = useState("19:19");
+  const [platform, setPlatform] = useState("Uber Eats");
+  const [evidence, setEvidence] = useState("All 5 items verified by kitchen supervisor at 18:40. Thermal bag used. Dispatch temp 74°C confirmed. Driver rated 4.8★. Delivered in 37 minutes.");
+  const [result, setResult] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const lb = { fontSize: 8.5, color: C.text3, textTransform: "uppercase", letterSpacing: "1px", marginBottom: 3, display: "block" };
+
+  async function generate() {
+    setLoading(true); setResult("");
+    try {
+      const text = await askAI(
+        "You are the DCPE Automated Dispute Evidence Generator for UK restaurants. Write professional dispute bundles to challenge invalid aggregator refunds. Formal UK English. Use **bold** for section headings. Be authoritative and persuasive.",
+        `Generate dispute evidence bundle:\nClaim: ${type}\nOrder Value: ${value}\nPlatform: ${platform}\nDispatch: ${dispatch}\nDriver Pickup: ${pickup}\nDelivery: ${delivery}\nKitchen Evidence: ${evidence}\n\nInclude:\n1. **Executive Summary** — why refund is invalid\n2. **Timeline Evidence** — timestamps proving restaurant compliance\n3. **Kitchen Compliance Statement** — DCPE-logged evidence\n4. **Attribution Analysis** — whose fault?\n5. **Platform Submission Statement** — exact text to paste into ${platform} dispute form\n6. **Escalation Path** — if initial dispute rejected\n7. **Expected Outcome** — probability and amount`,
+        1200
+      );
+      setResult(text);
+    } catch (e) { setResult("Error: " + e.message); }
+    setLoading(false);
+  }
+
+  const disputes = [
+    { ref: "#REF-441", complaint: "Cold food — driver delay proven", val: "+£47", status: "WON", sc: C.green },
+    { ref: "#REF-438", complaint: "Missing item — packing error accepted", val: "-£12", status: "ACCEPTED", sc: C.red },
+    { ref: "#REF-445", complaint: "Late delivery — weather attribution", val: "+£38", status: "WON", sc: C.green },
+    { ref: "#REF-447", complaint: "Damaged packaging — in review", val: "£62", status: "IN REVIEW", sc: C.orange },
+    { ref: "#REF-449", complaint: "Wrong order — driver mix-up proven", val: "+£71", status: "WON", sc: C.green },
+  ];
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+        <Panel title="⚖️ Dispute Evidence Generator" badge="Claude AI" badgeColor={C.purple2}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 8 }}>
+            <div><label style={lb}>Claim Type</label><Select value={type} onChange={setType} options={["Cold food on arrival","Missing items from order","Wrong order delivered","Food quality complaint","Excessive delivery delay","Damaged packaging on arrival"]} /></div>
+            <div><label style={lb}>Order Value</label><Input value={value} onChange={setValue} /></div>
+            <div><label style={lb}>Dispatch Time</label><Input value={dispatch} onChange={setDispatch} /></div>
+            <div><label style={lb}>Driver Pickup</label><Input value={pickup} onChange={setPickup} /></div>
+            <div><label style={lb}>Delivery Time</label><Input value={delivery} onChange={setDelivery} /></div>
+            <div><label style={lb}>Platform</label><Select value={platform} onChange={setPlatform} options={["Uber Eats","Deliveroo","Just Eat"]} /></div>
+          </div>
+          <div style={{ marginBottom: 8 }}>
+            <label style={lb}>Kitchen Evidence (DCPE Logged)</label>
+            <textarea value={evidence} onChange={e => setEvidence(e.target.value)} style={{ width: "100%", background: "rgba(255,255,255,0.04)", border: `1px solid ${C.border}`, borderRadius: 7, padding: "8px 10px", color: C.text, fontSize: 11, fontFamily: "inherit", outline: "none", resize: "vertical", minHeight: 70, boxSizing: "border-box" }} />
+          </div>
+          <Btn full disabled={loading} onClick={generate} color={C.purple}>{loading ? "⚖️ Generating Bundle…" : "⚖️ Generate Full Dispute Evidence Bundle"}</Btn>
+        </Panel>
+        <div>
+          {(loading || result) ? (
+            <Panel>
+              <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: "1.2px", textTransform: "uppercase", color: C.green2, marginBottom: 7 }}>◈ Evidence Bundle — Ready to Submit</div>
+              {loading ? <div style={{ display: "flex", gap: 8, color: C.text3, fontSize: 10.5, padding: 12 }}><Spinner /> Compiling forensic evidence…</div> : <div style={{ fontSize: 11, color: C.text2, lineHeight: 1.75, maxHeight: 400, overflowY: "auto" }} dangerouslySetInnerHTML={{ __html: formatAI(result) }} />}
+            </Panel>
+          ) : (
+            <div style={{ textAlign: "center", padding: 30, color: C.text3, fontSize: 11 }}>Generate a dispute bundle to see the professional evidence package ready for platform submission</div>
+          )}
+        </div>
+      </div>
+      <Panel title="Dispute Tracker — Active Cases" badge="23/23 Won This Month" badgeColor={C.purple2}>
+        <div style={{ display: "grid", gridTemplateColumns: "80px 1fr 70px 90px", gap: 8, padding: "6px 8px", borderBottom: `1px solid ${C.border}`, fontSize: 8, textTransform: "uppercase", letterSpacing: "1px", color: C.text3 }}>
+          <span>Ref #</span><span>Complaint</span><span>Value</span><span>Status</span>
+        </div>
+        {disputes.map(d => (
+          <div key={d.ref} style={{ display: "grid", gridTemplateColumns: "80px 1fr 70px 90px", gap: 8, padding: "9px 8px", borderBottom: `1px solid rgba(255,255,255,0.03)`, fontSize: 10.5, alignItems: "center" }}>
+            <span style={{ fontWeight: 700, color: C.text }}>{d.ref}</span>
+            <span style={{ color: C.text3, fontSize: 10 }}>{d.complaint}</span>
+            <span style={{ fontWeight: 700, color: d.sc }}>{d.val}</span>
+            <span style={{ display: "inline-block", padding: "2px 8px", borderRadius: 50, fontSize: 7.5, fontWeight: 700, background: `${d.sc}15`, border: `1px solid ${d.sc}30`, color: d.sc }}>{d.status}</span>
+          </div>
+        ))}
+      </Panel>
+    </div>
+  );
+}
+
+// ─── TAB: AI ADVISOR CHAT ─────────────────────────────────────────────────────
+const SYS = `You are DCPE AI, the Operations Advisor for the Delivery Complaint Prevention Engine — a UK food delivery SaaS founded by Hardik Badhwar. You are an expert on: the DCPE platform (Complaint-Risk Fingerprinting, Pre-Dispatch Prevention, CFFE Forensics, OLM Memory, CQN Network), UK food delivery (Deliveroo/Uber Eats/Just Eat), dispute resolution, kitchen operations, packaging, UK hospitality market (£14.3B, 176K+ SME restaurants), pricing (Prevention Core £90/mo, Risk Architect £350/mo, Sovereign Quality £200/mo/site), pilot results (28% complaint reduction, 18% refund recovery, 5 UK locations). Current: 247 active orders, 18 alerts, 94.3% prevention rate, £1,240 saved today. UK English. Be practical and specific.`;
+
+function AIAdvisor() {
+  const [msgs, setMsgs] = useState([{ role: "bot", text: "Hello! I'm your DCPE AI Operations Advisor. I can help with risk prevention, dispute resolution, platform integrations, OLM patterns, and everything about the Delivery Complaint Prevention Engine.\n\nYou currently have **18 active alerts**, **94.3% prevention rate**, and **£1,240 saved today**. What would you like to know?" }]);
+  const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [history, setHistory] = useState([]);
+  const msgsRef = useRef(null);
+
+  useEffect(() => { if (msgsRef.current) msgsRef.current.scrollTop = msgsRef.current.scrollHeight; }, [msgs]);
+
+  const quickQs = [
+    "Why is Order #4824 critical?", "How do I reduce cold food complaints?",
+    "Best Friday peak hour strategy?", "How does Risk Fingerprinting work?",
+    "How do I win Deliveroo disputes?", "What packaging for sushi deliveries?",
+    "Explain the OLM Memory system", "What ROI can I expect in Year 1?",
+  ];
+
+  async function send(msg) {
+    if (!msg.trim() || loading) return;
+    setInput("");
+    const newHistory = [...history, { role: "user", content: msg }];
+    setHistory(newHistory);
+    setMsgs(m => [...m, { role: "user", text: msg }]);
+    setLoading(true);
+    try {
+      const res = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ model: "claude-sonnet-4-20250514", max_tokens: 800, system: SYS, messages: newHistory }),
+      });
+      const data = await res.json();
+      const reply = data.content?.[0]?.text ?? "Unable to respond.";
+      setHistory(h => [...h, { role: "assistant", content: reply }]);
+      setMsgs(m => [...m, { role: "bot", text: reply }]);
+    } catch (e) { setMsgs(m => [...m, { role: "bot", text: "Error: " + e.message }]); }
+    setLoading(false);
+  }
+
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 280px", gap: 12 }}>
+      <Panel title="🤖 DCPE AI Operations Advisor" badge="● LIVE AI" badgeColor={C.green} style={{ display: "flex", flexDirection: "column", height: "calc(100vh - 220px)", minHeight: 500 }}>
+        <div ref={msgsRef} style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", gap: 8, padding: "2px 2px 8px", scrollbarWidth: "thin" }}>
+          {msgs.map((m, i) => (
+            <div key={i} style={{ maxWidth: "88%", alignSelf: m.role === "user" ? "flex-end" : "flex-start", padding: "9px 12px", borderRadius: 10, fontSize: 10.5, lineHeight: 1.7, ...(m.role === "user" ? { background: `linear-gradient(135deg,${C.blue}35,${C.purple}20)`, border: `1px solid ${C.blue}30`, color: C.text, borderBottomRightRadius: 3 } : { background: "rgba(255,255,255,0.04)", border: `1px solid ${C.border}`, color: C.text2, borderBottomLeftRadius: 3 }) }}>
+              {m.role === "bot" && <div style={{ fontSize: 8, fontWeight: 700, textTransform: "uppercase", letterSpacing: "1px", color: C.blue, marginBottom: 3 }}>DCPE AI ADVISOR</div>}
+              <div dangerouslySetInnerHTML={{ __html: formatAI(m.text) }} />
+            </div>
+          ))}
+          {loading && (
+            <div style={{ maxWidth: "88%", alignSelf: "flex-start", padding: "9px 12px", borderRadius: 10, background: "rgba(255,255,255,0.04)", border: `1px solid ${C.border}`, borderBottomLeftRadius: 3 }}>
+              <div style={{ fontSize: 8, fontWeight: 700, textTransform: "uppercase", letterSpacing: "1px", color: C.blue, marginBottom: 5 }}>DCPE AI ADVISOR</div>
+              <div style={{ display: "flex", gap: 4, alignItems: "center" }}><Spinner /></div>
+            </div>
+          )}
+        </div>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 5, margin: "8px 0" }}>
+          {quickQs.map(q => (
+            <button key={q} onClick={() => send(q)} style={{ background: "rgba(255,255,255,0.04)", border: `1px solid ${C.border}`, color: C.text3, fontSize: 9, padding: "4px 9px", borderRadius: 50, cursor: "pointer", fontFamily: "inherit", transition: ".15s" }}>{q}</button>
+          ))}
+        </div>
+        <div style={{ display: "flex", gap: 7 }}>
+          <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === "Enter" && send(input)} placeholder="Ask about orders, risk, disputes, operations…"
+            style={{ flex: 1, background: "rgba(255,255,255,0.05)", border: `1px solid ${C.border}`, borderRadius: 8, padding: "8px 12px", color: C.text, fontSize: 11, fontFamily: "inherit", outline: "none" }} />
+          <button onClick={() => send(input)} disabled={loading || !input.trim()}
+            style={{ width: 36, height: 36, background: `linear-gradient(135deg,${C.blue},${C.purple})`, border: "none", borderRadius: 8, color: "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, opacity: (loading || !input.trim()) ? 0.4 : 1 }}>
+            ➤
+          </button>
+        </div>
+      </Panel>
+      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        <Panel title="Live Context">
+          {[["Active Orders","247",C.green],["Risk Alerts","18",C.red],["Prevention Rate","94.3%",C.blue],["Saved Today","£1,240",C.green],["OLM Patterns","2,847",C.purple2],["CQN Partners","142",C.yellow],["Disputes Won","23/23",C.green]].map(([l,v,c]) => (
+            <div key={l} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "7px 9px", background: "rgba(255,255,255,0.02)", borderRadius: 6, marginBottom: 5, fontSize: 10.5 }}>
+              <span style={{ color: C.text2 }}>{l}</span>
+              <span style={{ fontWeight: 700, color: c }}>{v}</span>
+            </div>
+          ))}
+        </Panel>
+      </div>
+    </div>
+  );
+}
+
+// ─── TAB: OLM MEMORY ─────────────────────────────────────────────────────────
+function OLMMemory() {
+  const [query, setQuery] = useState("");
+  const [result, setResult] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const patterns = [
+    { p: "Rain + Sushi + Distance >5km = High Temp Risk", acc: "99.1%", ac: C.green, desc: "Learnt from 34 incidents. Sushi 5.8km in rain = temperature complaint. Intervention: double insulation + hot pack. Prevents 97% of complaints when applied." },
+    { p: "Curry + Liquid Items → Spill-Proof Packaging", acc: "97.4%", ac: C.green, desc: "From 28 curry/liquid incidents. Raita, dhal, curry sauce need sealed containers. Standard bag = 64% spill probability over 2km+. Sealed packaging eliminates 97% of spill claims." },
+    { p: "Friday 6-7PM Surge → Pre-Stage Bags +30 min", acc: "94.8%", ac: C.orange, desc: "Volume spikes 42% every Friday 6-8PM. Without pre-staging bags, packing time increases 3-4 mins/order, creating cold food cascades. Pre-staging 30 mins before peak prevents 89% of temperature failures." },
+    { p: "High-Refund Customer History → Enhanced Check", acc: "91.2%", ac: C.orange, desc: "Customers with 3+ previous refund claims have 78% higher complaint probability. Dual-verification + photo capture reduces dispute losses by 84%." },
+    { p: "Complex Multi-Item + Peak Hour = Missing Items", acc: "96.3%", ac: C.green, desc: "Orders with 6+ items during kitchen surge show 71% increased missing-item probability. Structured packing checklist with verbal confirmation reduces errors to near-zero." },
+  ];
+
+  async function queryOLM() {
+    if (!query.trim()) return;
+    setLoading(true); setResult("");
+    try {
+      const text = await askAI(
+        "You are the DCPE Outcome Learning Memory (OLM) system with access to 2,847 learned patterns from 2.1 million UK food delivery orders across 142 Community Quality Network (CQN) restaurant partners. Answer queries about learned patterns, intervention effectiveness, and operational intelligence. Reference specific statistics. UK English.",
+        `OLM Database Query: ${query}\n\nProvide: most relevant learned patterns, success rates, specific statistics from the CQN dataset, and actionable recommendations based on what the OLM has learned.`
+      );
+      setResult(text);
+    } catch (e) { setResult("Error: " + e.message); }
+    setLoading(false);
+  }
+
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: 12 }}>
+      <div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 8, marginBottom: 12 }}>
+          <KpiCard val="2,847" label="Stored Patterns" trend="↑ +34 today" trendUp kc={`linear-gradient(90deg,${C.purple},${C.purple2})`} />
+          <KpiCard val="96.2%" label="Pattern Accuracy" trend="↑ +0.3% this week" trendUp kc={`linear-gradient(90deg,${C.blue},${C.cyan})`} />
+          <KpiCard val="142" label="CQN Partners" trend="↑ 5 new this week" trendUp kc={`linear-gradient(90deg,${C.green},${C.blue})`} />
+          <KpiCard val="£8,420" label="ROI from OLM" trend="↑ from learnt patterns" trendUp kc={`linear-gradient(90deg,${C.orange},${C.red})`} />
+        </div>
+        <Panel title="🧠 Stored Intelligence Patterns" badge="Live OLM" badgeColor={C.purple2}>
+          {patterns.map((p, i) => (
+            <div key={i} style={{ background: "rgba(255,255,255,0.02)", border: `1px solid ${C.border}`, borderRadius: 9, padding: 11, marginBottom: 7 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 5 }}>
+                <span style={{ fontSize: 10.5, fontWeight: 600, color: C.text }}>{p.p}</span>
+                <span style={{ fontSize: 10, fontWeight: 700, color: p.ac }}>{p.acc}</span>
+              </div>
+              <p style={{ fontSize: 9.5, color: C.text3, lineHeight: 1.5, margin: 0 }}>{p.desc}</p>
+            </div>
+          ))}
+        </Panel>
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        <Panel title="Query OLM Database" badge="AI" badgeColor={C.blue}>
+          <p style={{ fontSize: 10, color: C.text3, marginBottom: 9 }}>Ask the Outcome Learning Memory anything about learned patterns:</p>
+          <textarea value={query} onChange={e => setQuery(e.target.value)} placeholder={"e.g. What interventions work best for cold food complaints on long-distance orders?\n\nOr: What patterns have been learnt about weekend delivery failures?"} style={{ width: "100%", background: "rgba(255,255,255,0.04)", border: `1px solid ${C.border}`, borderRadius: 7, padding: "9px 11px", color: C.text, fontSize: 11, fontFamily: "inherit", outline: "none", resize: "vertical", minHeight: 90, boxSizing: "border-box", marginBottom: 8 }} />
+          <Btn full disabled={loading || !query.trim()} onClick={queryOLM} color={C.purple}>{loading ? "🧠 Searching patterns…" : "🧠 Query OLM Intelligence"}</Btn>
+          <AIBox result={result} loading={loading} color={C.purple} />
+        </Panel>
+        <Panel title="Community Quality Network">
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+            {[["142","CQN Partners",C.purple2],["2.1M","Orders Analysed",C.blue],["96.2%","Accuracy (CQN)",C.green],["+18%","Better than solo",C.yellow]].map(([v,l,c]) => (
+              <div key={l} style={{ textAlign: "center", padding: "12px 8px", background: "rgba(255,255,255,0.03)", borderRadius: 9 }}>
+                <div style={{ fontSize: 22, fontWeight: 800, color: c }}>{v}</div>
+                <div style={{ fontSize: 8.5, color: C.text3, textTransform: "uppercase", letterSpacing: "1px", marginTop: 2 }}>{l}</div>
+              </div>
+            ))}
+          </div>
+        </Panel>
+      </div>
+    </div>
+  );
+}
+
+// ─── MAIN APP ─────────────────────────────────────────────────────────────────
+const TABS = [
+  { id: "command", label: "⌘ Command Center" },
+  { id: "orders", label: "📋 Order Monitor" },
+  { id: "simulator", label: "⚡ Risk Simulator" },
+  { id: "forensics", label: "🔬 Forensics Lab" },
+  { id: "dispute", label: "⚖️ Dispute Center" },
+  { id: "olm", label: "🧠 OLM Memory" },
+  { id: "advisor", label: "🤖 AI Advisor" },
+];
+
+export default function App() {
+  const [tab, setTab] = useState("command");
+  const [savings, setSavings] = useState(1240);
+  const [alertCount, setAlertCount] = useState(3);
+
+  useEffect(() => {
+    const t = setInterval(() => setSavings(s => s + Math.floor(Math.random() * 7 + 1)), 6000);
+    return () => clearInterval(t);
+  }, []);
+
+  return (
+    <div style={{ background: C.bg, minHeight: "100vh", fontFamily: "'DM Sans', 'Segoe UI', system-ui, sans-serif", color: C.text }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }
+        @keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-6px)} }
+        select option { background: #1e293b; }
+      `}</style>
+
+      {/* Header */}
+      <div style={{ background: "rgba(10,14,26,0.98)", borderBottom: `1px solid ${C.border}`, position: "sticky", top: 0, zIndex: 100 }}>
+        {/* Brand bar */}
+        <div style={{ padding: "0 16px", height: 48, display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: `1px solid ${C.border}` }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <div style={{ width: 30, height: 30, borderRadius: 8, background: `linear-gradient(135deg,${C.blue},${C.purple})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 800, color: "#fff" }}>D</div>
+            <div>
+              <div style={{ fontSize: 12, fontWeight: 800, color: C.text, letterSpacing: "-.2px" }}>Delivery Complaint Prevention Engine</div>
+              <div style={{ fontSize: 8.5, color: C.cyan, letterSpacing: "2px", textTransform: "uppercase", opacity: .7 }}>Predict · Prevent · Deliver Delight</div>
+            </div>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: ".8px", textTransform: "uppercase", padding: "3px 10px", borderRadius: 50, background: `${C.green}12`, border: `1px solid ${C.green}28`, color: C.green, display: "flex", alignItems: "center", gap: 5 }}>
+              <div style={{ width: 6, height: 6, borderRadius: "50%", background: C.green, animation: "bounce 2s infinite" }} /> LIVE AI
+            </div>
+            <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: ".8px", textTransform: "uppercase", padding: "3px 10px", borderRadius: 50, background: `${C.red}12`, border: `1px solid ${C.red}28`, color: C.red }}>
+              {alertCount} ALERTS
+            </div>
+            <div style={{ fontSize: 10, fontWeight: 700, color: C.green }}>£{savings.toLocaleString()} saved today</div>
+          </div>
+        </div>
+        {/* Tabs */}
+        <div style={{ display: "flex", overflowX: "auto", height: 42, padding: "0 8px" }}>
+          {TABS.map(t => (
+            <button key={t.id} onClick={() => setTab(t.id)}
+              style={{ padding: "0 14px", fontSize: 11, fontWeight: tab === t.id ? 700 : 500, color: tab === t.id ? C.text : "rgba(148,163,184,.6)", cursor: "pointer", border: "none", background: "transparent", height: "100%", borderBottom: `2px solid ${tab === t.id ? C.blue : "transparent"}`, transition: ".15s", whiteSpace: "nowrap", fontFamily: "inherit" }}>
+              {t.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Body */}
+      <div style={{ padding: 14, maxWidth: 1400, margin: "0 auto" }}>
+        {tab === "command" && <CommandCenter savings={savings} setSavings={setSavings} alertCount={alertCount} setAlertCount={setAlertCount} />}
+        {tab === "orders" && <OrderMonitor />}
+        {tab === "simulator" && <RiskSimulator />}
+        {tab === "forensics" && <ForensicsLab />}
+        {tab === "dispute" && <DisputeCenter />}
+        {tab === "olm" && <OLMMemory />}
+        {tab === "advisor" && <AIAdvisor />}
+      </div>
+    </div>
+  );
+}
