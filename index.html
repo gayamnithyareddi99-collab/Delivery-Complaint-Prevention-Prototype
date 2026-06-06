@@ -3158,42 +3158,209 @@ var _MOCK = {
   }
 };
 
+/* ---------- additional JSON mock handlers ---------- */
+
+_MOCK.fingerprint = function(p) {
+  /* p: {rest, val, items, cat, prep, driver, cust} */
+  var cat = (p.cat||'').toLowerCase();
+  var isLiquid = cat.includes('curry')||cat.includes('soup')||cat.includes('drink')||cat.includes('ramen')||cat.includes('noodle');
+  var isFragile = cat.includes('sushi')||cat.includes('salad')||cat.includes('ice');
+  var isHeavy   = cat.includes('pizza')||cat.includes('burger')||cat.includes('grill')||cat.includes('bbq');
+  var itemN = parseInt(p.items)||3;
+  var prepN = parseInt(p.prep)||12;
+  var drvN  = parseFloat(p.driver)||4.2;
+
+  var base = 30
+    + (isLiquid?18:0) + (isFragile?20:0) + (isHeavy?8:0)
+    + (itemN>=8?15:itemN>=5?8:0)
+    + (prepN>=20?12:prepN>=14?6:0)
+    + (drvN<3.5?15:drvN<4.0?8:0)
+    + (p.cust&&p.cust.toLowerCase().includes('previous')?10:0);
+  var score = Math.min(97, Math.max(8, base));
+  var profile = score>=80?'CRITICAL':score>=60?'HIGH':score>=40?'MEDIUM':score>=20?'LOW':'SAFE';
+
+  var signals = [
+    {factor:'Order Complexity', score:Math.min(99,itemN*9+5), impact:itemN>=6?'High':'Medium'},
+    {factor:'Food Category Risk', score:Math.min(99,isLiquid?78:isFragile?85:isHeavy?45:30), impact:isLiquid||isFragile?'High':'Low'},
+    {factor:'Prep Time Pressure', score:Math.min(99,prepN*4), impact:prepN>=15?'High':'Medium'},
+    {factor:'Driver Reliability', score:Math.min(99,Math.round((5-drvN)*22+10)), impact:drvN<3.8?'High':'Low'},
+    {factor:'Historical Pattern Match', score:Math.min(99,score-8+Math.floor(Math.random()*12)), impact:'Medium'},
+    {factor:'Packaging Demand Score', score:Math.min(99,isLiquid?82:isFragile?88:Math.round(score*0.7)), impact:isLiquid||isFragile?'High':'Medium'}
+  ];
+
+  var catLabel = p.cat||'Mixed';
+  var riskLabel = score>=75?'High-Risk ':score>=45?'Moderate-Risk ':'Low-Risk ';
+  var protLabel = isLiquid?'Liquid Spill Protocol':isFragile?'Temperature-Critical Protocol':isHeavy?'Heat-Retention Protocol':'Standard Prevention Protocol';
+  fpName = riskLabel + catLabel + ' Order — ' + protLabel;
+
+  return JSON.stringify({
+    overallRisk: score,
+    riskProfile: profile,
+    signals: signals,
+    fingerprint: fpName,
+    recommendations:[
+      isLiquid?'Use leak-proof sealed containers + secondary zip-lock bag for all liquid items':'Apply double-insulated thermal outer bag with heat-sealed foil inner layer',
+      itemN>=6?'Perform staged packing: hot items last, sealed individually, verified against receipt':'Complete pre-dispatch QC tick-off checklist for every item before sealing bag',
+      drvN<4.0?'Flag order for priority driver dispatch and request nearest available courier':'Dispatch within standard window; confirm driver ETA before sealing bag',
+      'Log intervention timestamp in DCPE system and capture packing-station photo as evidence'
+    ],
+    marginProtection: '£'+Math.round(score*0.3)+'-£'+Math.round(score*0.5)+' saved per similar order via prevented chargebacks',
+    historicalMatch: score>=70?'Matches "'+fpName.split('—')[0].trim()+'" failure cluster — seen in '+Math.round(score*1.4)+'% of similar orders this month':'No strong historical failure match — low baseline risk for this order profile'
+  });
+};
+
+_MOCK.forensicsLab = function(p) {
+  /* p: {type, platform, dispatch, pickup, delivery, notes, context} */
+  var complaint = (p.type||'').toLowerCase();
+  var ctx       = (p.context||'').toLowerCase();
+  var notes     = (p.notes||'').toLowerCase();
+
+  /* Determine attribution based on content clues */
+  var kitchenPct, driverPct, platformPct;
+  if(complaint.includes('cold')||complaint.includes('temperature')) {
+    /* Cold food — mostly driver transit time */
+    kitchenPct=12; driverPct=72; platformPct=16;
+  } else if(complaint.includes('missing')||complaint.includes('incorrect')) {
+    /* Missing items — kitchen vs packing */
+    var kitchenLikely = !(notes.includes('verified')||notes.includes('checked')||notes.includes('ticked'));
+    kitchenPct=kitchenLikely?65:15; driverPct=kitchenLikely?20:55; platformPct=kitchenLikely?15:30;
+  } else if(complaint.includes('late')||complaint.includes('delay')) {
+    /* Late delivery — driver/platform routing */
+    kitchenPct=ctx.includes('dispatch')||notes.includes('on-time')?10:30;
+    driverPct=55; platformPct=100-kitchenPct-55;
+  } else if(complaint.includes('damaged')||complaint.includes('spill')) {
+    /* Damage — transit */
+    kitchenPct=notes.includes('sealed')||notes.includes('tape')?8:35;
+    driverPct=70; platformPct=100-kitchenPct-70;
+  } else {
+    kitchenPct=25; driverPct=50; platformPct=25;
+  }
+  /* clamp to 0-100 and ensure sum=100 */
+  kitchenPct=Math.max(0,Math.min(100,kitchenPct));
+  driverPct=Math.max(0,Math.min(100,driverPct));
+  platformPct=100-kitchenPct-driverPct;
+
+  var verdict = kitchenPct>=50?'Restaurant liable':driverPct>=50?'Driver/Transit liable':platformPct>=40?'Platform liable':'Shared liability';
+  var rec = kitchenPct>=50?'Accept liability':driverPct>=50?'Contest immediately':'Negotiate partial refund';
+  var conf = Math.round(78+Math.random()*14)+'%';
+  var dispatchT = p.dispatch||'18:42';
+  var pickupT   = p.pickup||'18:58';
+  var deliveryT = p.delivery||'19:21';
+  var platName  = p.platform||'Deliveroo';
+  var recoveryAmt = driverPct>=50||platformPct>=40?'Full recovery likely':'Partial (50%) recovery expected';
+
+  return JSON.stringify({
+    kitchenFaultPct: kitchenPct,
+    driverFaultPct:  driverPct,
+    platformFaultPct: platformPct,
+    verdict: verdict,
+    confidence: conf,
+    evidence:[
+      'DCPE dispatch log: order sealed and QC-checked at '+dispatchT+' — kitchen compliance confirmed',
+      'Driver collection recorded at '+pickupT+' — '+(parseInt(pickupT)-parseInt(dispatchT.split(':')[0])*60-parseInt(dispatchT.split(':')[1]))+' min post-dispatch handover window documented',
+      'Delivery completion '+deliveryT+' — '+(driverPct>=50?'extended transit window indicates post-handover causation':'timeline within acceptable parameters'),
+      (notes.includes('photo')||notes.includes('photographic'))?'Photographic packing evidence captured at dispatch — packaging integrity confirmed':'DCPE packing-station checklist completed; all items individually verified before seal'
+    ],
+    counterArgument: 'DCPE forensic logs confirm full kitchen compliance at dispatch ('+dispatchT+'). Packaging integrity was verified and photographic evidence exists at handover. The '+p.type+' complaint arose during the post-handover transit phase — outside the restaurant\'s operational control. We formally request this chargeback be reversed and attributed correctly to '+platName+'\'s courier performance.',
+    disputeRecommendation: rec,
+    estimatedRecovery: recoveryAmt
+  });
+};
+
+/* ---------- main router ---------- */
 async function dcpeAI(payload) {
   await _dcpeMockDelay();
   var msgs = payload.messages||[];
-  var sys = (payload.system||'').toLowerCase();
+  var sys  = (payload.system||'').toLowerCase();
   var lastUser = '';
   msgs.forEach(function(m){if(m.role==='user')lastUser=m.content||'';});
 
-  /* Route to the right mock based on system prompt context */
-  if(sys.includes('forensic analysis')||sys.includes('order analysis')){
-    /* Order analysis  extract order id from message */
+  /* Fingerprint Engine — returns JSON */
+  if(sys.includes('fingerprinting engine')||sys.includes('risk fingerprint')) {
+    var fp={};
+    lastUser.split('\n').forEach(function(l){var p=l.split(':');if(p.length>=2)fp[p[0].trim().toLowerCase()]=p.slice(1).join(':').trim();});
+    return _MOCK.fingerprint({
+      rest:fp['restaurant']||'Restaurant',
+      val:fp['order value']||'£24',
+      items:fp['item count']||'4',
+      cat:fp['food category']||'Mixed',
+      prep:fp['prep time']||'12',
+      driver:fp['driver rating']||'4.2',
+      cust:fp['customer history']||'Normal'
+    });
+  }
+
+  /* Forensics Lab — returns JSON */
+  if(sys.includes('forensics engine')||sys.includes('cffe')||sys.includes('failure attribution forensics')) {
+    var ff={};
+    lastUser.split('\n').forEach(function(l){var p=l.split(':');if(p.length>=2)ff[p[0].trim().toLowerCase()]=p.slice(1).join(':').trim();});
+    return _MOCK.forensicsLab({
+      type:ff['complaint']||ff['complaint type']||'Cold food on arrival',
+      platform:ff['platform']||'Deliveroo',
+      dispatch:ff['dispatch time']||'18:42',
+      pickup:ff['driver pickup time']||'18:58',
+      delivery:ff['delivery completion']||'19:21',
+      notes:ff['kitchen log notes']||'',
+      context:ff['full context']||''
+    });
+  }
+
+  /* Order Monitor forensic analysis — returns formatted text */
+  if(sys.includes('forensic intelligence engine')||sys.includes('forensic analysis')) {
     var ordMatch = lastUser.match(/Order:\s*(#\d+)/);
     var oid = ordMatch?ordMatch[1]:'#4821';
     var order = (window.ORDERS||[]).find(function(o){return o.id===oid;})||{id:oid,items:'Mixed',platform:'Uber Eats',dist:'3km',weather:'Rain',load:'Busy',risk:72,stage:'Packing'};
     return _MOCK.orderAnalysis(order);
   }
-  if(sys.includes('risk scoring engine')){
-    /* Simulator  extract params from message */
+
+  /* Risk Simulator — returns JSON */
+  if(sys.includes('risk scoring engine')) {
     var params={};
-    var lines = lastUser.split('\n');
-    lines.forEach(function(l){var p=l.split(':');if(p.length>=2)params[p[0].trim().toLowerCase()]=p.slice(1).join(':').trim();});
-    return _MOCK.simulator({dist:params['distance']||'2-3km',weather:params['weather']||'Rain',load:params['kitchen load']||'Busy',food:params['food']||'Pizza',time:params['time']||'Dinner Peak',staff:params['staffing']||'Adequate',history:params['recent history']||'Normal'});
+    lastUser.split('\n').forEach(function(l){var p=l.split(':');if(p.length>=2)params[p[0].trim().toLowerCase()]=p.slice(1).join(':').trim();});
+    return _MOCK.simulator({
+      dist:params['distance']||'2-3km',
+      weather:params['weather']||'Rain',
+      load:params['kitchen load']||'Busy',
+      food:params['food']||'Pizza',
+      time:params['time']||'Dinner Peak',
+      staff:params['staffing']||'Adequate',
+      history:params['recent history']||'Normal'
+    });
   }
-  if(sys.includes('dispute evidence')){
+
+  /* Dispute Centre — returns formatted text */
+  if(sys.includes('dispute evidence')) {
     var dparams={};
     lastUser.split('\n').forEach(function(l){var p=l.split(':');if(p.length>=2)dparams[p[0].trim().toLowerCase()]=p.slice(1).join(':').trim();});
-    return _MOCK.dispute({type:dparams['refund claim']||'Cold Food',value:dparams['order value']||'£24.50',platform:dparams['platform']||'Deliveroo',dispatch:dparams['dispatch time']||'18:42',pickup:dparams['driver pickup']||'18:58',delivery:dparams['delivery completion']||'19:21',evidence:dparams['kitchen evidence']||'QC checked and sealed'});
+    return _MOCK.dispute({
+      type:dparams['refund claim']||'Cold Food',
+      value:dparams['order value']||'£24.50',
+      platform:dparams['platform']||'Deliveroo',
+      dispatch:dparams['dispatch time']||'18:42',
+      pickup:dparams['driver pickup']||'18:58',
+      delivery:dparams['delivery completion']||'19:21',
+      evidence:dparams['kitchen evidence']||'QC checked and sealed'
+    });
   }
-  if(sys.includes('outcome learning memory')||sys.includes('olm')){
+
+  /* OLM Intelligence */
+  if(sys.includes('outcome learning memory')||sys.includes('olm')) {
     return _MOCK.olm(lastUser.replace('OLM Database Query:','').trim());
   }
-  if(sys.includes('integration specialist')){
+
+  /* Integration Roadmap */
+  if(sys.includes('integration specialist')) {
     var iparams={};
     lastUser.split('\n').forEach(function(l){var p=l.split(':');if(p.length>=2)iparams[p[0].trim().toLowerCase()]=p.slice(1).join(':').trim();});
-    return _MOCK.integration({pos:iparams['pos']||'Square',platforms:iparams['delivery platforms']||'Deliveroo, Uber Eats',biz:iparams['business type']||'Independent Takeaway',vol:iparams['order volume']||'200-400'});
+    return _MOCK.integration({
+      pos:iparams['pos']||'Square',
+      platforms:iparams['delivery platforms']||'Deliveroo, Uber Eats',
+      biz:iparams['business type']||'Independent Takeaway',
+      vol:iparams['order volume']||'200-400'
+    });
   }
-  /* Default: chat / general advisor */
+
+  /* Default: Chat Advisor */
   return _MOCK.chat(msgs);
 }
 
